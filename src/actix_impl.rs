@@ -26,11 +26,19 @@ use crate::Secret;
 
 impl actix::ResponseError for PayloadError {
 	fn error_response(&self) -> actix::HttpResponse<actix::BoxBody> {
-		todo!()
+		actix::HttpResponse::build(self.status_code()).body(self.to_string())
 	}
 
 	fn status_code(&self) -> actix::StatusCode {
-		todo!()
+		match self {
+			PayloadError::NoPayload | PayloadError::InvalidPayload(_) => {
+				actix::StatusCode::BAD_REQUEST
+			},
+			PayloadError::InvalidSignature | PayloadError::NoSecret | PayloadError::NoSignature => {
+				actix::StatusCode::UNAUTHORIZED
+			},
+			PayloadError::Other(_) => actix::StatusCode::INTERNAL_SERVER_ERROR,
+		}
 	}
 }
 
@@ -57,11 +65,11 @@ impl actix::FromRequest for WebhookPayload {
 		};
 		let Ok(signature) = signature_header.to_str() else {
 			// signature not valid utf8
-			return WebhookPayloadExtractorFut(Err(PayloadError::NoSignature));
+			return WebhookPayloadExtractorFut(Err(PayloadError::InvalidSignature));
 		};
 		if !signature.starts_with(SIGNATURE_START) {
 			// signature not valid sha256 hash
-			return WebhookPayloadExtractorFut(Err(PayloadError::NoSignature));
+			return WebhookPayloadExtractorFut(Err(PayloadError::InvalidSignature));
 		};
 		let signature = &signature[SIGNATURE_START.len()..];
 
@@ -89,19 +97,25 @@ impl Future for WebhookPayloadExtractorFut {
 		match self.0.as_mut() {
 			Err(e) => Poll::Ready(Err(e.clone())),
 			Ok(extractor) => {
-				let mut extractor = Pin::new(extractor);
+				// extract payload
 				let payload = match ready!(Pin::new(&mut extractor.payload).poll(cx)) {
 					Ok(payload) => payload,
 					Err(e) => return Poll::Ready(Err(PayloadError::Other(Rc::new(e)))),
 				};
+
+				// build hash
 				let mut hasher =
 					Hmac::<Sha256>::new_from_slice(&extractor.secret.0.as_bytes()).unwrap();
 				hasher.update(&payload);
 				let hash = hasher.finalize().into_bytes();
 				let hash = hex::encode(hash);
+
+				// verify hash
 				if hash != extractor.signature {
 					return Poll::Ready(Err(PayloadError::NoSignature));
 				}
+
+				// return deserialized payload
 				let payload = serde_json::from_slice(&payload).map_err(Rc::new)?;
 				Poll::Ready(Ok(payload))
 			},
