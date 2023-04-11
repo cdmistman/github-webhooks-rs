@@ -3737,7 +3737,7 @@ pub struct CheckRunCompletedCheckRunCheckSuite {
 	#[serde(default, skip_serializing_if = "Option::is_none")]
 	pub node_id:       Option<String>,
 	/// An array of pull requests that match this check suite. A pull request
-	/// matches a check suite if they have the same `head_branch`.
+	/// matches a check suite if they have the same `head_branch`.  
 	/// **Note:**
 	///
 	/// * The `head_sha` of the check suite can differ from the `sha` of the
@@ -4169,7 +4169,7 @@ pub struct CheckRunCreatedCheckRunCheckSuite {
 	#[serde(default, skip_serializing_if = "Option::is_none")]
 	pub node_id:       Option<String>,
 	/// An array of pull requests that match this check suite. A pull request
-	/// matches a check suite if they have the same `head_branch`.
+	/// matches a check suite if they have the same `head_branch`.  
 	/// **Note:**
 	///
 	/// * The `head_sha` of the check suite can differ from the `sha` of the
@@ -4735,7 +4735,7 @@ pub struct CheckRunRequestedActionCheckRunCheckSuite {
 	#[serde(default, skip_serializing_if = "Option::is_none")]
 	pub node_id:       Option<String>,
 	/// An array of pull requests that match this check suite. A pull request
-	/// matches a check suite if they have the same `head_branch`.
+	/// matches a check suite if they have the same `head_branch`.  
 	/// **Note:**
 	///
 	/// * The `head_sha` of the check suite can differ from the `sha` of the
@@ -5182,7 +5182,7 @@ pub struct CheckRunRerequestedCheckRunCheckSuite {
 	#[serde(default, skip_serializing_if = "Option::is_none")]
 	pub node_id:       Option<String>,
 	/// An array of pull requests that match this check suite. A pull request
-	/// matches a check suite if they have the same `head_branch`.
+	/// matches a check suite if they have the same `head_branch`.  
 	/// **Note:**
 	///
 	/// * The `head_sha` of the check suite can differ from the `sha` of the
@@ -35232,7 +35232,7 @@ impl std::convert::TryFrom<String> for WebhookEventsVariant0Item {
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(untagged)]
-pub enum WebhookSchema {
+pub enum WebhookPayload {
 	BranchProtectionRuleEvent(BranchProtectionRuleEvent),
 	CheckRunEvent(CheckRunEvent),
 	CheckSuiteEvent(CheckSuiteEvent),
@@ -35294,307 +35294,307 @@ pub enum WebhookSchema {
 	WorkflowJobEvent(WorkflowJobEvent),
 	WorkflowRunEvent(WorkflowRunEvent),
 }
-impl From<&WebhookSchema> for WebhookSchema {
-	fn from(value: &WebhookSchema) -> Self {
+impl From<&WebhookPayload> for WebhookPayload {
+	fn from(value: &WebhookPayload) -> Self {
 		value.clone()
 	}
 }
-impl From<BranchProtectionRuleEvent> for WebhookSchema {
+impl From<BranchProtectionRuleEvent> for WebhookPayload {
 	fn from(value: BranchProtectionRuleEvent) -> Self {
 		Self::BranchProtectionRuleEvent(value)
 	}
 }
-impl From<CheckRunEvent> for WebhookSchema {
+impl From<CheckRunEvent> for WebhookPayload {
 	fn from(value: CheckRunEvent) -> Self {
 		Self::CheckRunEvent(value)
 	}
 }
-impl From<CheckSuiteEvent> for WebhookSchema {
+impl From<CheckSuiteEvent> for WebhookPayload {
 	fn from(value: CheckSuiteEvent) -> Self {
 		Self::CheckSuiteEvent(value)
 	}
 }
-impl From<CodeScanningAlertEvent> for WebhookSchema {
+impl From<CodeScanningAlertEvent> for WebhookPayload {
 	fn from(value: CodeScanningAlertEvent) -> Self {
 		Self::CodeScanningAlertEvent(value)
 	}
 }
-impl From<CommitCommentEvent> for WebhookSchema {
+impl From<CommitCommentEvent> for WebhookPayload {
 	fn from(value: CommitCommentEvent) -> Self {
 		Self::CommitCommentEvent(value)
 	}
 }
-impl From<CreateEvent> for WebhookSchema {
+impl From<CreateEvent> for WebhookPayload {
 	fn from(value: CreateEvent) -> Self {
 		Self::CreateEvent(value)
 	}
 }
-impl From<DeleteEvent> for WebhookSchema {
+impl From<DeleteEvent> for WebhookPayload {
 	fn from(value: DeleteEvent) -> Self {
 		Self::DeleteEvent(value)
 	}
 }
-impl From<DependabotAlertEvent> for WebhookSchema {
+impl From<DependabotAlertEvent> for WebhookPayload {
 	fn from(value: DependabotAlertEvent) -> Self {
 		Self::DependabotAlertEvent(value)
 	}
 }
-impl From<DeployKeyEvent> for WebhookSchema {
+impl From<DeployKeyEvent> for WebhookPayload {
 	fn from(value: DeployKeyEvent) -> Self {
 		Self::DeployKeyEvent(value)
 	}
 }
-impl From<DeploymentEvent> for WebhookSchema {
+impl From<DeploymentEvent> for WebhookPayload {
 	fn from(value: DeploymentEvent) -> Self {
 		Self::DeploymentEvent(value)
 	}
 }
-impl From<DeploymentStatusEvent> for WebhookSchema {
+impl From<DeploymentStatusEvent> for WebhookPayload {
 	fn from(value: DeploymentStatusEvent) -> Self {
 		Self::DeploymentStatusEvent(value)
 	}
 }
-impl From<DiscussionEvent> for WebhookSchema {
+impl From<DiscussionEvent> for WebhookPayload {
 	fn from(value: DiscussionEvent) -> Self {
 		Self::DiscussionEvent(value)
 	}
 }
-impl From<DiscussionCommentEvent> for WebhookSchema {
+impl From<DiscussionCommentEvent> for WebhookPayload {
 	fn from(value: DiscussionCommentEvent) -> Self {
 		Self::DiscussionCommentEvent(value)
 	}
 }
-impl From<ForkEvent> for WebhookSchema {
+impl From<ForkEvent> for WebhookPayload {
 	fn from(value: ForkEvent) -> Self {
 		Self::ForkEvent(value)
 	}
 }
-impl From<GithubAppAuthorizationEvent> for WebhookSchema {
+impl From<GithubAppAuthorizationEvent> for WebhookPayload {
 	fn from(value: GithubAppAuthorizationEvent) -> Self {
 		Self::GithubAppAuthorizationEvent(value)
 	}
 }
-impl From<GollumEvent> for WebhookSchema {
+impl From<GollumEvent> for WebhookPayload {
 	fn from(value: GollumEvent) -> Self {
 		Self::GollumEvent(value)
 	}
 }
-impl From<InstallationEvent> for WebhookSchema {
+impl From<InstallationEvent> for WebhookPayload {
 	fn from(value: InstallationEvent) -> Self {
 		Self::InstallationEvent(value)
 	}
 }
-impl From<InstallationRepositoriesEvent> for WebhookSchema {
+impl From<InstallationRepositoriesEvent> for WebhookPayload {
 	fn from(value: InstallationRepositoriesEvent) -> Self {
 		Self::InstallationRepositoriesEvent(value)
 	}
 }
-impl From<InstallationTargetEvent> for WebhookSchema {
+impl From<InstallationTargetEvent> for WebhookPayload {
 	fn from(value: InstallationTargetEvent) -> Self {
 		Self::InstallationTargetEvent(value)
 	}
 }
-impl From<IssueCommentEvent> for WebhookSchema {
+impl From<IssueCommentEvent> for WebhookPayload {
 	fn from(value: IssueCommentEvent) -> Self {
 		Self::IssueCommentEvent(value)
 	}
 }
-impl From<IssuesEvent> for WebhookSchema {
+impl From<IssuesEvent> for WebhookPayload {
 	fn from(value: IssuesEvent) -> Self {
 		Self::IssuesEvent(value)
 	}
 }
-impl From<LabelEvent> for WebhookSchema {
+impl From<LabelEvent> for WebhookPayload {
 	fn from(value: LabelEvent) -> Self {
 		Self::LabelEvent(value)
 	}
 }
-impl From<MarketplacePurchaseEvent> for WebhookSchema {
+impl From<MarketplacePurchaseEvent> for WebhookPayload {
 	fn from(value: MarketplacePurchaseEvent) -> Self {
 		Self::MarketplacePurchaseEvent(value)
 	}
 }
-impl From<MemberEvent> for WebhookSchema {
+impl From<MemberEvent> for WebhookPayload {
 	fn from(value: MemberEvent) -> Self {
 		Self::MemberEvent(value)
 	}
 }
-impl From<MembershipEvent> for WebhookSchema {
+impl From<MembershipEvent> for WebhookPayload {
 	fn from(value: MembershipEvent) -> Self {
 		Self::MembershipEvent(value)
 	}
 }
-impl From<MergeGroupEvent> for WebhookSchema {
+impl From<MergeGroupEvent> for WebhookPayload {
 	fn from(value: MergeGroupEvent) -> Self {
 		Self::MergeGroupEvent(value)
 	}
 }
-impl From<MetaEvent> for WebhookSchema {
+impl From<MetaEvent> for WebhookPayload {
 	fn from(value: MetaEvent) -> Self {
 		Self::MetaEvent(value)
 	}
 }
-impl From<MilestoneEvent> for WebhookSchema {
+impl From<MilestoneEvent> for WebhookPayload {
 	fn from(value: MilestoneEvent) -> Self {
 		Self::MilestoneEvent(value)
 	}
 }
-impl From<OrgBlockEvent> for WebhookSchema {
+impl From<OrgBlockEvent> for WebhookPayload {
 	fn from(value: OrgBlockEvent) -> Self {
 		Self::OrgBlockEvent(value)
 	}
 }
-impl From<OrganizationEvent> for WebhookSchema {
+impl From<OrganizationEvent> for WebhookPayload {
 	fn from(value: OrganizationEvent) -> Self {
 		Self::OrganizationEvent(value)
 	}
 }
-impl From<PackageEvent> for WebhookSchema {
+impl From<PackageEvent> for WebhookPayload {
 	fn from(value: PackageEvent) -> Self {
 		Self::PackageEvent(value)
 	}
 }
-impl From<PageBuildEvent> for WebhookSchema {
+impl From<PageBuildEvent> for WebhookPayload {
 	fn from(value: PageBuildEvent) -> Self {
 		Self::PageBuildEvent(value)
 	}
 }
-impl From<PingEvent> for WebhookSchema {
+impl From<PingEvent> for WebhookPayload {
 	fn from(value: PingEvent) -> Self {
 		Self::PingEvent(value)
 	}
 }
-impl From<ProjectEvent> for WebhookSchema {
+impl From<ProjectEvent> for WebhookPayload {
 	fn from(value: ProjectEvent) -> Self {
 		Self::ProjectEvent(value)
 	}
 }
-impl From<ProjectCardEvent> for WebhookSchema {
+impl From<ProjectCardEvent> for WebhookPayload {
 	fn from(value: ProjectCardEvent) -> Self {
 		Self::ProjectCardEvent(value)
 	}
 }
-impl From<ProjectColumnEvent> for WebhookSchema {
+impl From<ProjectColumnEvent> for WebhookPayload {
 	fn from(value: ProjectColumnEvent) -> Self {
 		Self::ProjectColumnEvent(value)
 	}
 }
-impl From<ProjectsV2ItemEvent> for WebhookSchema {
+impl From<ProjectsV2ItemEvent> for WebhookPayload {
 	fn from(value: ProjectsV2ItemEvent) -> Self {
 		Self::ProjectsV2ItemEvent(value)
 	}
 }
-impl From<PublicEvent> for WebhookSchema {
+impl From<PublicEvent> for WebhookPayload {
 	fn from(value: PublicEvent) -> Self {
 		Self::PublicEvent(value)
 	}
 }
-impl From<PullRequestEvent> for WebhookSchema {
+impl From<PullRequestEvent> for WebhookPayload {
 	fn from(value: PullRequestEvent) -> Self {
 		Self::PullRequestEvent(value)
 	}
 }
-impl From<PullRequestReviewEvent> for WebhookSchema {
+impl From<PullRequestReviewEvent> for WebhookPayload {
 	fn from(value: PullRequestReviewEvent) -> Self {
 		Self::PullRequestReviewEvent(value)
 	}
 }
-impl From<PullRequestReviewCommentEvent> for WebhookSchema {
+impl From<PullRequestReviewCommentEvent> for WebhookPayload {
 	fn from(value: PullRequestReviewCommentEvent) -> Self {
 		Self::PullRequestReviewCommentEvent(value)
 	}
 }
-impl From<PullRequestReviewThreadEvent> for WebhookSchema {
+impl From<PullRequestReviewThreadEvent> for WebhookPayload {
 	fn from(value: PullRequestReviewThreadEvent) -> Self {
 		Self::PullRequestReviewThreadEvent(value)
 	}
 }
-impl From<PushEvent> for WebhookSchema {
+impl From<PushEvent> for WebhookPayload {
 	fn from(value: PushEvent) -> Self {
 		Self::PushEvent(value)
 	}
 }
-impl From<RegistryPackageEvent> for WebhookSchema {
+impl From<RegistryPackageEvent> for WebhookPayload {
 	fn from(value: RegistryPackageEvent) -> Self {
 		Self::RegistryPackageEvent(value)
 	}
 }
-impl From<ReleaseEvent> for WebhookSchema {
+impl From<ReleaseEvent> for WebhookPayload {
 	fn from(value: ReleaseEvent) -> Self {
 		Self::ReleaseEvent(value)
 	}
 }
-impl From<RepositoryEvent> for WebhookSchema {
+impl From<RepositoryEvent> for WebhookPayload {
 	fn from(value: RepositoryEvent) -> Self {
 		Self::RepositoryEvent(value)
 	}
 }
-impl From<RepositoryDispatchEvent> for WebhookSchema {
+impl From<RepositoryDispatchEvent> for WebhookPayload {
 	fn from(value: RepositoryDispatchEvent) -> Self {
 		Self::RepositoryDispatchEvent(value)
 	}
 }
-impl From<RepositoryImportEvent> for WebhookSchema {
+impl From<RepositoryImportEvent> for WebhookPayload {
 	fn from(value: RepositoryImportEvent) -> Self {
 		Self::RepositoryImportEvent(value)
 	}
 }
-impl From<RepositoryVulnerabilityAlertEvent> for WebhookSchema {
+impl From<RepositoryVulnerabilityAlertEvent> for WebhookPayload {
 	fn from(value: RepositoryVulnerabilityAlertEvent) -> Self {
 		Self::RepositoryVulnerabilityAlertEvent(value)
 	}
 }
-impl From<SecretScanningAlertEvent> for WebhookSchema {
+impl From<SecretScanningAlertEvent> for WebhookPayload {
 	fn from(value: SecretScanningAlertEvent) -> Self {
 		Self::SecretScanningAlertEvent(value)
 	}
 }
-impl From<SecurityAdvisoryEvent> for WebhookSchema {
+impl From<SecurityAdvisoryEvent> for WebhookPayload {
 	fn from(value: SecurityAdvisoryEvent) -> Self {
 		Self::SecurityAdvisoryEvent(value)
 	}
 }
-impl From<SponsorshipEvent> for WebhookSchema {
+impl From<SponsorshipEvent> for WebhookPayload {
 	fn from(value: SponsorshipEvent) -> Self {
 		Self::SponsorshipEvent(value)
 	}
 }
-impl From<StarEvent> for WebhookSchema {
+impl From<StarEvent> for WebhookPayload {
 	fn from(value: StarEvent) -> Self {
 		Self::StarEvent(value)
 	}
 }
-impl From<StatusEvent> for WebhookSchema {
+impl From<StatusEvent> for WebhookPayload {
 	fn from(value: StatusEvent) -> Self {
 		Self::StatusEvent(value)
 	}
 }
-impl From<TeamEvent> for WebhookSchema {
+impl From<TeamEvent> for WebhookPayload {
 	fn from(value: TeamEvent) -> Self {
 		Self::TeamEvent(value)
 	}
 }
-impl From<TeamAddEvent> for WebhookSchema {
+impl From<TeamAddEvent> for WebhookPayload {
 	fn from(value: TeamAddEvent) -> Self {
 		Self::TeamAddEvent(value)
 	}
 }
-impl From<WatchEvent> for WebhookSchema {
+impl From<WatchEvent> for WebhookPayload {
 	fn from(value: WatchEvent) -> Self {
 		Self::WatchEvent(value)
 	}
 }
-impl From<WorkflowDispatchEvent> for WebhookSchema {
+impl From<WorkflowDispatchEvent> for WebhookPayload {
 	fn from(value: WorkflowDispatchEvent) -> Self {
 		Self::WorkflowDispatchEvent(value)
 	}
 }
-impl From<WorkflowJobEvent> for WebhookSchema {
+impl From<WorkflowJobEvent> for WebhookPayload {
 	fn from(value: WorkflowJobEvent) -> Self {
 		Self::WorkflowJobEvent(value)
 	}
 }
-impl From<WorkflowRunEvent> for WebhookSchema {
+impl From<WorkflowRunEvent> for WebhookPayload {
 	fn from(value: WorkflowRunEvent) -> Self {
 		Self::WorkflowRunEvent(value)
 	}
