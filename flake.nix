@@ -17,6 +17,7 @@
 
 	outputs = inputs @ {
 		devenv,
+    fenix,
 		flake-parts,
 		nixpkgs,
 		...
@@ -32,8 +33,21 @@
 			"x86_64-linux"
 		];
 
-		perSystem = _: {
+		perSystem = { pkgs, system, ... }: {
+      _module.args.pkgs = import nixpkgs {
+        inherit system;
+
+        overlays = [
+          fenix.overlays.default
+        ];
+      };
+
 			devenv.shells.default = {
+        packages = pkgs.lib.optionals pkgs.stdenv.isDarwin [
+          pkgs.darwin.apple_sdk.frameworks.CoreFoundation
+          pkgs.darwin.apple_sdk.frameworks.Security
+        ];
+
 				languages.rust = {
 					enable = true;
 					version = "latest";
