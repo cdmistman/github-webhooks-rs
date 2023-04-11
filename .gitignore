@@ -2,5 +2,4 @@
 /result
 /target
 
-/src/schema.json
-/src/schema.rs
+schema.json

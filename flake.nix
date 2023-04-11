@@ -53,7 +53,13 @@
 					version = "latest";
 				};
 
-				scripts.update-schema.exec = ''
+				scripts.download-schema.exec = ''
+          ${pkgs.curl}/bin/curl \
+            --proto '=https' \
+            --tlsv1.2 \
+            -sSfL \
+            -o schema.json \
+            https://unpkg.com/@octokit/webhooks-schemas/schema.json
 				'';
 			};
 		};

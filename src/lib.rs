@@ -2,3 +2,5 @@
 extern crate serde;
 
 mod schema;
+
+pub use schema::*;
