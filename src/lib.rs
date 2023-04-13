@@ -27,9 +27,9 @@ pub enum VerifiedParseError {
 
 impl WebhookPayload {
 	pub fn parse_verified(
-		body: &impl AsRef<[u8]>,
-		sig: &impl AsRef<[u8]>,
-		secret: &impl AsRef<[u8]>,
+		body: impl AsRef<[u8]>,
+		sig: impl AsRef<[u8]>,
+		secret: impl AsRef<[u8]>,
 	) -> Result<Self, VerifiedParseError> {
 		let body = body.as_ref();
 		let sig = sig.as_ref();
