@@ -26,16 +26,24 @@ pub enum VerifiedParseError {
 }
 
 impl WebhookPayload {
-	pub fn parse_verified(body: &str, sig: &str, secret: &str) -> Result<Self, VerifiedParseError> {
-		let mut hasher = Hmac::<Sha256>::new_from_slice(secret.as_bytes())
-			.map_err(|_| VerifiedParseError::InvalidSecret)?;
-		hasher.update(body.as_bytes());
-		let hash = hex::encode(hasher.finalize().into_bytes());
+	pub fn parse_verified(
+		body: &impl AsRef<[u8]>,
+		sig: &impl AsRef<[u8]>,
+		secret: &impl AsRef<[u8]>,
+	) -> Result<Self, VerifiedParseError> {
+		let body = body.as_ref();
+		let sig = sig.as_ref();
+		let secret = secret.as_ref();
 
-		if hash != sig {
+		let mut hasher = Hmac::<Sha256>::new_from_slice(secret)
+			.map_err(|_| VerifiedParseError::InvalidSecret)?;
+		hasher.update(body);
+		let hash = hex::encode(hasher.finalize().into_bytes()).into_bytes();
+
+		if &*hash != sig {
 			return Err(VerifiedParseError::InvalidSignature);
 		}
 
-		serde_json::from_str(secret).map_err(|_| VerifiedParseError::InvalidPayload)
+		serde_json::from_slice(secret).map_err(|_| VerifiedParseError::InvalidPayload)
 	}
 }
