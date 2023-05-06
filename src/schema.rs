@@ -3505,53 +3505,30 @@ impl std::convert::TryFrom<String> for BranchProtectionRuleEnforcementLevel {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum BranchProtectionRuleEvent {
-	/// branch protection rule created event
-	///
-	/// Activity related to a branch protection rule. For more information, see "[About branch protection rules](https://docs.github.com/en/github/administering-a-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#about-branch-protection-rules)."
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		rule:         BranchProtectionRule,
-		sender:       User,
-	},
-	/// branch protection rule deleted event
-	///
-	/// Activity related to a branch protection rule. For more information, see "[About branch protection rules](https://docs.github.com/en/github/administering-a-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#about-branch-protection-rules)."
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		rule:         BranchProtectionRule,
-		sender:       User,
-	},
-	/// branch protection rule edited event
-	///
-	/// Activity related to a branch protection rule. For more information, see "[About branch protection rules](https://docs.github.com/en/github/administering-a-repository/defining-the-mergeability-of-pull-requests/about-protected-branches#about-branch-protection-rules)."
-	#[serde(rename = "edited")]
-	Edited {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<BranchProtectionRuleEditedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		rule:         BranchProtectionRule,
-		sender:       User,
-	},
+	Created(BranchProtectionRuleCreated),
+	Deleted(BranchProtectionRuleDeleted),
+	Edited(BranchProtectionRuleEdited),
 }
 impl From<&BranchProtectionRuleEvent> for BranchProtectionRuleEvent {
 	fn from(value: &BranchProtectionRuleEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<BranchProtectionRuleCreated> for BranchProtectionRuleEvent {
+	fn from(value: BranchProtectionRuleCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<BranchProtectionRuleDeleted> for BranchProtectionRuleEvent {
+	fn from(value: BranchProtectionRuleDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<BranchProtectionRuleEdited> for BranchProtectionRuleEvent {
+	fn from(value: BranchProtectionRuleEdited) -> Self {
+		Self::Edited(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -4509,66 +4486,36 @@ impl From<&CheckRunDeployment> for CheckRunDeployment {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum CheckRunEvent {
-	/// check_run completed event
-	#[serde(rename = "completed")]
-	Completed {
-		check_run:        CheckRunCompletedCheckRun,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		repository:       Repository,
-		/// The action requested by the user.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		requested_action: Option<CheckRunCompletedRequestedAction>,
-		sender:           User,
-	},
-	/// check_run created event
-	#[serde(rename = "created")]
-	Created {
-		check_run:        CheckRunCreatedCheckRun,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		repository:       Repository,
-		/// The action requested by the user.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		requested_action: Option<CheckRunCreatedRequestedAction>,
-		sender:           User,
-	},
-	/// check_run requested_action event
-	#[serde(rename = "requested_action")]
-	RequestedAction {
-		check_run:        CheckRunRequestedActionCheckRun,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		repository:       Repository,
-		requested_action: CheckRunRequestedActionRequestedAction,
-		sender:           User,
-	},
-	/// check_run rerequested event
-	#[serde(rename = "rerequested")]
-	Rerequested {
-		check_run:        CheckRunRerequestedCheckRun,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		repository:       Repository,
-		/// The action requested by the user.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		requested_action: Option<CheckRunRerequestedRequestedAction>,
-		sender:           User,
-	},
+	Completed(CheckRunCompleted),
+	Created(CheckRunCreated),
+	RequestedAction(CheckRunRequestedAction),
+	Rerequested(CheckRunRerequested),
 }
 impl From<&CheckRunEvent> for CheckRunEvent {
 	fn from(value: &CheckRunEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<CheckRunCompleted> for CheckRunEvent {
+	fn from(value: CheckRunCompleted) -> Self {
+		Self::Completed(value)
+	}
+}
+impl From<CheckRunCreated> for CheckRunEvent {
+	fn from(value: CheckRunCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<CheckRunRequestedAction> for CheckRunEvent {
+	fn from(value: CheckRunRequestedAction) -> Self {
+		Self::RequestedAction(value)
+	}
+}
+impl From<CheckRunRerequested> for CheckRunEvent {
+	fn from(value: CheckRunRerequested) -> Self {
+		Self::Rerequested(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -5727,45 +5674,30 @@ impl std::convert::TryFrom<String> for CheckSuiteCompletedCheckSuiteStatus {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum CheckSuiteEvent {
-	/// check_suite completed event
-	#[serde(rename = "completed")]
-	Completed {
-		check_suite:  CheckSuiteCompletedCheckSuite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// check_suite requested event
-	#[serde(rename = "requested")]
-	Requested {
-		check_suite:  CheckSuiteRequestedCheckSuite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// check_suite rerequested event
-	#[serde(rename = "rerequested")]
-	Rerequested {
-		check_suite:  CheckSuiteRerequestedCheckSuite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Completed(CheckSuiteCompleted),
+	Requested(CheckSuiteRequested),
+	Rerequested(CheckSuiteRerequested),
 }
 impl From<&CheckSuiteEvent> for CheckSuiteEvent {
 	fn from(value: &CheckSuiteEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<CheckSuiteCompleted> for CheckSuiteEvent {
+	fn from(value: CheckSuiteCompleted) -> Self {
+		Self::Completed(value)
+	}
+}
+impl From<CheckSuiteRequested> for CheckSuiteEvent {
+	fn from(value: CheckSuiteRequested) -> Self {
+		Self::Requested(value)
+	}
+}
+impl From<CheckSuiteRerequested> for CheckSuiteEvent {
+	fn from(value: CheckSuiteRerequested) -> Self {
+		Self::Rerequested(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -7160,132 +7092,48 @@ impl From<&CodeScanningAlertCreatedAlertTool> for CodeScanningAlertCreatedAlertT
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum CodeScanningAlertEvent {
-	/// code_scanning_alert appeared_in_branch event
-	#[serde(rename = "appeared_in_branch")]
-	AppearedInBranch {
-		alert:        CodeScanningAlertAppearedInBranchAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// code_scanning_alert closed_by_user event
-	#[serde(rename = "closed_by_user")]
-	ClosedByUser {
-		alert:        CodeScanningAlertClosedByUserAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// code_scanning_alert created event
-	#[serde(rename = "created")]
-	Created {
-		alert:        CodeScanningAlertCreatedAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// code_scanning_alert fixed event
-	#[serde(rename = "fixed")]
-	Fixed {
-		alert:        CodeScanningAlertFixedAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// code_scanning_alert reopened event
-	#[serde(rename = "reopened")]
-	Reopened {
-		alert:        CodeScanningAlertReopenedAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// code_scanning_alert reopened_by_user event
-	#[serde(rename = "reopened_by_user")]
-	ReopenedByUser {
-		alert:        CodeScanningAlertReopenedByUserAlert,
-		/// The commit SHA of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		commit_oid:   String,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		/// The Git reference of the code scanning alert. When the action is
-		/// `reopened_by_user` or `closed_by_user`, the event was triggered by
-		/// the `sender` and this value will be empty.
-		#[serde(rename = "ref")]
-		ref_:         String,
-		repository:   Repository,
-		sender:       User,
-	},
+	AppearedInBranch(CodeScanningAlertAppearedInBranch),
+	ClosedByUser(CodeScanningAlertClosedByUser),
+	Created(CodeScanningAlertCreated),
+	Fixed(CodeScanningAlertFixed),
+	Reopened(CodeScanningAlertReopened),
+	ReopenedByUser(CodeScanningAlertReopenedByUser),
 }
 impl From<&CodeScanningAlertEvent> for CodeScanningAlertEvent {
 	fn from(value: &CodeScanningAlertEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<CodeScanningAlertAppearedInBranch> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertAppearedInBranch) -> Self {
+		Self::AppearedInBranch(value)
+	}
+}
+impl From<CodeScanningAlertClosedByUser> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertClosedByUser) -> Self {
+		Self::ClosedByUser(value)
+	}
+}
+impl From<CodeScanningAlertCreated> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<CodeScanningAlertFixed> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertFixed) -> Self {
+		Self::Fixed(value)
+	}
+}
+impl From<CodeScanningAlertReopened> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertReopened) -> Self {
+		Self::Reopened(value)
+	}
+}
+impl From<CodeScanningAlertReopenedByUser> for CodeScanningAlertEvent {
+	fn from(value: CodeScanningAlertReopenedByUser) -> Self {
+		Self::ReopenedByUser(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -8253,26 +8101,27 @@ impl From<&CommitCommentCreatedComment> for CommitCommentCreatedComment {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum CommitCommentEvent {
-	/// commit_comment created event
-	///
-	/// A commit comment is created. The type of activity is specified in the
-	/// `action` property.
-	#[serde(rename = "created")]
-	Created {
-		comment:      CommitCommentCreatedComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+pub struct CommitCommentEvent(pub CommitCommentCreated);
+impl std::ops::Deref for CommitCommentEvent {
+	type Target = CommitCommentCreated;
+
+	fn deref(&self) -> &CommitCommentCreated {
+		&self.0
+	}
+}
+impl From<CommitCommentEvent> for CommitCommentCreated {
+	fn from(value: CommitCommentEvent) -> Self {
+		value.0
+	}
 }
 impl From<&CommitCommentEvent> for CommitCommentEvent {
 	fn from(value: &CommitCommentEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<CommitCommentCreated> for CommitCommentEvent {
+	fn from(value: CommitCommentCreated) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -8771,67 +8620,42 @@ impl std::convert::TryFrom<String> for DependabotAlertDismissedReason {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum DependabotAlertEvent {
-	/// dependabot_alert created event
-	#[serde(rename = "created")]
-	Created {
-		alert:        DependabotAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// dependabot_alert dismissed event
-	#[serde(rename = "dismissed")]
-	Dismissed {
-		alert:        DependabotAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// dependabot_alert fixed event
-	#[serde(rename = "fixed")]
-	Fixed {
-		alert:        DependabotAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// dependabot_alert reintroduced event
-	#[serde(rename = "reintroduced")]
-	Reintroduced {
-		alert:        DependabotAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// dependabot_alert reopened event
-	#[serde(rename = "reopened")]
-	Reopened {
-		alert:        DependabotAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(DependabotAlertCreated),
+	Dismissed(DependabotAlertDismissed),
+	Fixed(DependabotAlertFixed),
+	Reintroduced(DependabotAlertReintroduced),
+	Reopened(DependabotAlertReopened),
 }
 impl From<&DependabotAlertEvent> for DependabotAlertEvent {
 	fn from(value: &DependabotAlertEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DependabotAlertCreated> for DependabotAlertEvent {
+	fn from(value: DependabotAlertCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<DependabotAlertDismissed> for DependabotAlertEvent {
+	fn from(value: DependabotAlertDismissed) -> Self {
+		Self::Dismissed(value)
+	}
+}
+impl From<DependabotAlertFixed> for DependabotAlertEvent {
+	fn from(value: DependabotAlertFixed) -> Self {
+		Self::Fixed(value)
+	}
+}
+impl From<DependabotAlertReintroduced> for DependabotAlertEvent {
+	fn from(value: DependabotAlertReintroduced) -> Self {
+		Self::Reintroduced(value)
+	}
+}
+impl From<DependabotAlertReopened> for DependabotAlertEvent {
+	fn from(value: DependabotAlertReopened) -> Self {
+		Self::Reopened(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -9640,34 +9464,24 @@ impl From<&DeployKeyDeletedKey> for DeployKeyDeletedKey {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum DeployKeyEvent {
-	/// deploy_key created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		key:          DeployKeyCreatedKey,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// deploy_key deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		key:          DeployKeyDeletedKey,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(DeployKeyCreated),
+	Deleted(DeployKeyDeleted),
 }
 impl From<&DeployKeyEvent> for DeployKeyEvent {
 	fn from(value: &DeployKeyEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DeployKeyCreated> for DeployKeyEvent {
+	fn from(value: DeployKeyCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<DeployKeyDeleted> for DeployKeyEvent {
+	fn from(value: DeployKeyDeleted) -> Self {
+		Self::Deleted(value)
 	}
 }
 /// The [deployment](https://docs.github.com/en/rest/reference/deployments#list-deployments).
@@ -9778,25 +9592,27 @@ impl std::convert::TryFrom<String> for DeploymentCreatedAction {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum DeploymentEvent {
-	/// deployment created event
-	#[serde(rename = "created")]
-	Created {
-		deployment:   Deployment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow:     Option<Workflow>,
-		workflow_run: Option<DeploymentWorkflowRun>,
-	},
+pub struct DeploymentEvent(pub DeploymentCreated);
+impl std::ops::Deref for DeploymentEvent {
+	type Target = DeploymentCreated;
+
+	fn deref(&self) -> &DeploymentCreated {
+		&self.0
+	}
+}
+impl From<DeploymentEvent> for DeploymentCreated {
+	fn from(value: DeploymentEvent) -> Self {
+		value.0
+	}
 }
 impl From<&DeploymentEvent> for DeploymentEvent {
 	fn from(value: &DeploymentEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DeploymentCreated> for DeploymentEvent {
+	fn from(value: DeploymentCreated) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -10191,30 +10007,27 @@ impl std::convert::TryFrom<String>
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum DeploymentStatusEvent {
-	/// deployment_status created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		check_run:         Option<DeploymentStatusCreatedCheckRun>,
-		deployment:        Deployment,
-		deployment_status: DeploymentStatusCreatedDeploymentStatus,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:      Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:      Option<Organization>,
-		repository:        Repository,
-		sender:            User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		workflow:          Option<Workflow>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		workflow_run:      Option<DeploymentWorkflowRun>,
-	},
+pub struct DeploymentStatusEvent(pub DeploymentStatusCreated);
+impl std::ops::Deref for DeploymentStatusEvent {
+	type Target = DeploymentStatusCreated;
+
+	fn deref(&self) -> &DeploymentStatusCreated {
+		&self.0
+	}
+}
+impl From<DeploymentStatusEvent> for DeploymentStatusCreated {
+	fn from(value: DeploymentStatusEvent) -> Self {
+		value.0
+	}
 }
 impl From<&DeploymentStatusEvent> for DeploymentStatusEvent {
 	fn from(value: &DeploymentStatusEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DeploymentStatusCreated> for DeploymentStatusEvent {
+	fn from(value: DeploymentStatusCreated) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -10914,46 +10727,30 @@ impl From<&DiscussionCommentEditedComment> for DiscussionCommentEditedComment {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum DiscussionCommentEvent {
-	/// discussion_comment created event
-	#[serde(rename = "created")]
-	Created {
-		comment:      DiscussionCommentCreatedComment,
-		discussion:   Discussion,
-		installation: InstallationLite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion_comment deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		comment:      DiscussionCommentDeletedComment,
-		discussion:   Discussion,
-		installation: InstallationLite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion_comment edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      DiscussionCommentEditedChanges,
-		comment:      DiscussionCommentEditedComment,
-		discussion:   Discussion,
-		installation: InstallationLite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(DiscussionCommentCreated),
+	Deleted(DiscussionCommentDeleted),
+	Edited(DiscussionCommentEdited),
 }
 impl From<&DiscussionCommentEvent> for DiscussionCommentEvent {
 	fn from(value: &DiscussionCommentEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DiscussionCommentCreated> for DiscussionCommentEvent {
+	fn from(value: DiscussionCommentCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<DiscussionCommentDeleted> for DiscussionCommentEvent {
+	fn from(value: DiscussionCommentDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<DiscussionCommentEdited> for DiscussionCommentEvent {
+	fn from(value: DiscussionCommentEdited) -> Self {
+		Self::Edited(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -11187,163 +10984,90 @@ impl From<&DiscussionEditedChangesTitle> for DiscussionEditedChangesTitle {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum DiscussionEvent {
-	/// discussion answered event
-	#[serde(rename = "answered")]
-	Answered {
-		answer:       DiscussionAnsweredAnswer,
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion category changed event
-	#[serde(rename = "category_changed")]
-	CategoryChanged {
-		changes:      DiscussionCategoryChangedChanges,
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion created event
-	#[serde(rename = "created")]
-	Created {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion edited event
-	#[serde(rename = "edited")]
-	Edited {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<DiscussionEditedChanges>,
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion labeled event
-	#[serde(rename = "labeled")]
-	Labeled {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		label:        Label,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion locked event
-	#[serde(rename = "locked")]
-	Locked {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion pinned event
-	#[serde(rename = "pinned")]
-	Pinned {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion transferred event
-	#[serde(rename = "transferred")]
-	Transferred {
-		changes:      DiscussionTransferredChanges,
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion unanswered event
-	#[serde(rename = "unanswered")]
-	Unanswered {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		old_answer:   DiscussionUnansweredOldAnswer,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion unlabeled event
-	#[serde(rename = "unlabeled")]
-	Unlabeled {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		label:        Label,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion unlocked event
-	#[serde(rename = "unlocked")]
-	Unlocked {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// discussion unpinned event
-	#[serde(rename = "unpinned")]
-	Unpinned {
-		discussion:   Discussion,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Answered(DiscussionAnswered),
+	CategoryChanged(DiscussionCategoryChanged),
+	Created(DiscussionCreated),
+	Deleted(DiscussionDeleted),
+	Edited(DiscussionEdited),
+	Labeled(DiscussionLabeled),
+	Locked(DiscussionLocked),
+	Pinned(DiscussionPinned),
+	Transferred(DiscussionTransferred),
+	Unanswered(DiscussionUnanswered),
+	Unlabeled(DiscussionUnlabeled),
+	Unlocked(DiscussionUnlocked),
+	Unpinned(DiscussionUnpinned),
 }
 impl From<&DiscussionEvent> for DiscussionEvent {
 	fn from(value: &DiscussionEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<DiscussionAnswered> for DiscussionEvent {
+	fn from(value: DiscussionAnswered) -> Self {
+		Self::Answered(value)
+	}
+}
+impl From<DiscussionCategoryChanged> for DiscussionEvent {
+	fn from(value: DiscussionCategoryChanged) -> Self {
+		Self::CategoryChanged(value)
+	}
+}
+impl From<DiscussionCreated> for DiscussionEvent {
+	fn from(value: DiscussionCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<DiscussionDeleted> for DiscussionEvent {
+	fn from(value: DiscussionDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<DiscussionEdited> for DiscussionEvent {
+	fn from(value: DiscussionEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<DiscussionLabeled> for DiscussionEvent {
+	fn from(value: DiscussionLabeled) -> Self {
+		Self::Labeled(value)
+	}
+}
+impl From<DiscussionLocked> for DiscussionEvent {
+	fn from(value: DiscussionLocked) -> Self {
+		Self::Locked(value)
+	}
+}
+impl From<DiscussionPinned> for DiscussionEvent {
+	fn from(value: DiscussionPinned) -> Self {
+		Self::Pinned(value)
+	}
+}
+impl From<DiscussionTransferred> for DiscussionEvent {
+	fn from(value: DiscussionTransferred) -> Self {
+		Self::Transferred(value)
+	}
+}
+impl From<DiscussionUnanswered> for DiscussionEvent {
+	fn from(value: DiscussionUnanswered) -> Self {
+		Self::Unanswered(value)
+	}
+}
+impl From<DiscussionUnlabeled> for DiscussionEvent {
+	fn from(value: DiscussionUnlabeled) -> Self {
+		Self::Unlabeled(value)
+	}
+}
+impl From<DiscussionUnlocked> for DiscussionEvent {
+	fn from(value: DiscussionUnlocked) -> Self {
+		Self::Unlocked(value)
+	}
+}
+impl From<DiscussionUnpinned> for DiscussionEvent {
+	fn from(value: DiscussionUnpinned) -> Self {
+		Self::Unpinned(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -11977,20 +11701,27 @@ impl From<&ForkEvent> for ForkEvent {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", content = "sender")]
-pub enum GithubAppAuthorizationEvent {
-	/// github_app_authorization revoked event
-	#[serde(rename = "revoked")]
-	Revoked(User),
+pub struct GithubAppAuthorizationEvent(pub GithubAppAuthorizationRevoked);
+impl std::ops::Deref for GithubAppAuthorizationEvent {
+	type Target = GithubAppAuthorizationRevoked;
+
+	fn deref(&self) -> &GithubAppAuthorizationRevoked {
+		&self.0
+	}
+}
+impl From<GithubAppAuthorizationEvent> for GithubAppAuthorizationRevoked {
+	fn from(value: GithubAppAuthorizationEvent) -> Self {
+		value.0
+	}
 }
 impl From<&GithubAppAuthorizationEvent> for GithubAppAuthorizationEvent {
 	fn from(value: &GithubAppAuthorizationEvent) -> Self {
 		value.clone()
 	}
 }
-impl From<User> for GithubAppAuthorizationEvent {
-	fn from(value: User) -> Self {
-		Self::Revoked(value)
+impl From<GithubAppAuthorizationRevoked> for GithubAppAuthorizationEvent {
+	fn from(value: GithubAppAuthorizationRevoked) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -12439,67 +12170,42 @@ impl From<&InstallationDeletedRepositoriesItem> for InstallationDeletedRepositor
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum InstallationEvent {
-	/// installation created event
-	#[serde(rename = "created")]
-	Created {
-		installation: Installation,
-		/// An array of repository objects that the installation can access.
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		repositories: Vec<InstallationCreatedRepositoriesItem>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		requester:    Option<User>,
-		sender:       User,
-	},
-	/// installation deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		installation: Installation,
-		/// An array of repository objects that the installation can access.
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		repositories: Vec<InstallationDeletedRepositoriesItem>,
-		#[serde(default)]
-		requester:    (),
-		sender:       User,
-	},
-	/// installation new_permissions_accepted event
-	#[serde(rename = "new_permissions_accepted")]
-	NewPermissionsAccepted {
-		installation: Installation,
-		/// An array of repository objects that the installation can access.
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		repositories: Vec<InstallationNewPermissionsAcceptedRepositoriesItem>,
-		#[serde(default)]
-		requester:    (),
-		sender:       User,
-	},
-	/// installation suspend event
-	#[serde(rename = "suspend")]
-	Suspend {
-		installation: Installation,
-		/// An array of repository objects that the installation can access.
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		repositories: Vec<InstallationSuspendRepositoriesItem>,
-		#[serde(default)]
-		requester:    (),
-		sender:       User,
-	},
-	/// installation unsuspend event
-	#[serde(rename = "unsuspend")]
-	Unsuspend {
-		installation: Installation,
-		/// An array of repository objects that the installation can access.
-		#[serde(default, skip_serializing_if = "Vec::is_empty")]
-		repositories: Vec<InstallationUnsuspendRepositoriesItem>,
-		#[serde(default)]
-		requester:    (),
-		sender:       User,
-	},
+	Created(InstallationCreated),
+	Deleted(InstallationDeleted),
+	NewPermissionsAccepted(InstallationNewPermissionsAccepted),
+	Suspend(InstallationSuspend),
+	Unsuspend(InstallationUnsuspend),
 }
 impl From<&InstallationEvent> for InstallationEvent {
 	fn from(value: &InstallationEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<InstallationCreated> for InstallationEvent {
+	fn from(value: InstallationCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<InstallationDeleted> for InstallationEvent {
+	fn from(value: InstallationDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<InstallationNewPermissionsAccepted> for InstallationEvent {
+	fn from(value: InstallationNewPermissionsAccepted) -> Self {
+		Self::NewPermissionsAccepted(value)
+	}
+}
+impl From<InstallationSuspend> for InstallationEvent {
+	fn from(value: InstallationSuspend) -> Self {
+		Self::Suspend(value)
+	}
+}
+impl From<InstallationUnsuspend> for InstallationEvent {
+	fn from(value: InstallationUnsuspend) -> Self {
+		Self::Unsuspend(value)
 	}
 }
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
@@ -15158,44 +14864,24 @@ impl std::convert::TryFrom<String> for InstallationRepositoriesAddedRepositorySe
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum InstallationRepositoriesEvent {
-	/// installation_repositories added event
-	#[serde(rename = "added")]
-	Added {
-		installation:         Installation,
-		/// An array of repository objects, which were added to the
-		/// installation.
-		repositories_added:   Vec<InstallationRepositoriesAddedRepositoriesAddedItem>,
-		/// An array of repository objects, which were removed from the
-		/// installation.
-		repositories_removed: Vec<InstallationRepositoriesAddedRepositoriesRemovedItem>,
-		/// Describe whether all repositories have been selected or there's a
-		/// selection involved
-		repository_selection: InstallationRepositoriesAddedRepositorySelection,
-		requester:            Option<User>,
-		sender:               User,
-	},
-	/// installation_repositories removed event
-	#[serde(rename = "removed")]
-	Removed {
-		installation:         Installation,
-		/// An array of repository objects, which were added to the
-		/// installation.
-		repositories_added:   Vec<InstallationRepositoriesRemovedRepositoriesAddedItem>,
-		/// An array of repository objects, which were removed from the
-		/// installation.
-		repositories_removed: Vec<InstallationRepositoriesRemovedRepositoriesRemovedItem>,
-		/// Describe whether all repositories have been selected or there's a
-		/// selection involved
-		repository_selection: InstallationRepositoriesRemovedRepositorySelection,
-		requester:            Option<User>,
-		sender:               User,
-	},
+	Added(InstallationRepositoriesAdded),
+	Removed(InstallationRepositoriesRemoved),
 }
 impl From<&InstallationRepositoriesEvent> for InstallationRepositoriesEvent {
 	fn from(value: &InstallationRepositoriesEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<InstallationRepositoriesAdded> for InstallationRepositoriesEvent {
+	fn from(value: InstallationRepositoriesAdded) -> Self {
+		Self::Added(value)
+	}
+}
+impl From<InstallationRepositoriesRemoved> for InstallationRepositoriesEvent {
+	fn from(value: InstallationRepositoriesRemoved) -> Self {
+		Self::Removed(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -15498,29 +15184,27 @@ impl From<&InstallationSuspendRepositoriesItem> for InstallationSuspendRepositor
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum InstallationTargetEvent {
-	/// installation_target renamed event
-	///
-	/// Somebody renamed the user or organization account that a GitHub App is
-	/// installed on.
-	#[serde(rename = "renamed")]
-	Renamed {
-		account:      InstallationTargetRenamedAccount,
-		changes:      InstallationTargetRenamedChanges,
-		installation: InstallationLite,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		sender:       Option<User>,
-		target_type:  String,
-	},
+pub struct InstallationTargetEvent(pub InstallationTargetRenamed);
+impl std::ops::Deref for InstallationTargetEvent {
+	type Target = InstallationTargetRenamed;
+
+	fn deref(&self) -> &InstallationTargetRenamed {
+		&self.0
+	}
+}
+impl From<InstallationTargetEvent> for InstallationTargetRenamed {
+	fn from(value: InstallationTargetEvent) -> Self {
+		value.0
+	}
 }
 impl From<&InstallationTargetEvent> for InstallationTargetEvent {
 	fn from(value: &InstallationTargetEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<InstallationTargetRenamed> for InstallationTargetEvent {
+	fn from(value: InstallationTargetRenamed) -> Self {
+		Self(value)
 	}
 }
 /// Somebody renamed the user or organization account that a GitHub App is
@@ -16339,52 +16023,30 @@ impl From<&IssueCommentEditedChangesBody> for IssueCommentEditedChangesBody {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum IssueCommentEvent {
-	/// issue_comment created event
-	#[serde(rename = "created")]
-	Created {
-		comment:      IssueComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [issue](https://docs.github.com/en/rest/reference/issues) the comment belongs to.
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issue_comment deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		comment:      IssueComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [issue](https://docs.github.com/en/rest/reference/issues) the comment belongs to.
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issue_comment edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      IssueCommentEditedChanges,
-		comment:      IssueComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [issue](https://docs.github.com/en/rest/reference/issues) the comment belongs to.
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(IssueCommentCreated),
+	Deleted(IssueCommentDeleted),
+	Edited(IssueCommentEdited),
 }
 impl From<&IssueCommentEvent> for IssueCommentEvent {
 	fn from(value: &IssueCommentEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<IssueCommentCreated> for IssueCommentEvent {
+	fn from(value: IssueCommentCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<IssueCommentDeleted> for IssueCommentEvent {
+	fn from(value: IssueCommentDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<IssueCommentEdited> for IssueCommentEvent {
+	fn from(value: IssueCommentEdited) -> Self {
+		Self::Edited(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -16835,212 +16497,108 @@ impl From<&IssuesEditedChangesTitle> for IssuesEditedChangesTitle {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum IssuesEvent {
-	/// issues assigned event
-	///
-	/// Activity related to an issue. The type of activity is specified in the
-	/// action property.
-	#[serde(rename = "assigned")]
-	Assigned {
-		/// The optional user who was assigned or unassigned from the issue.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		assignee:     Option<User>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues closed event
-	#[serde(rename = "closed")]
-	Closed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [issue](https://docs.github.com/en/rest/reference/issues) itself.
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues demilestoned event
-	#[serde(rename = "demilestoned")]
-	Demilestoned {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      IssuesEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		label:        Option<Label>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues labeled event
-	#[serde(rename = "labeled")]
-	Labeled {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		/// The label that was added to the issue.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		label:        Option<Label>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues locked event
-	#[serde(rename = "locked")]
-	Locked {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues milestoned event
-	#[serde(rename = "milestoned")]
-	Milestoned {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues opened event
-	#[serde(rename = "opened")]
-	Opened {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<IssuesOpenedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues pinned event
-	#[serde(rename = "pinned")]
-	Pinned {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues reopened event
-	#[serde(rename = "reopened")]
-	Reopened {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues transferred event
-	#[serde(rename = "transferred")]
-	Transferred {
-		changes:      IssuesTransferredChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues unassigned event
-	#[serde(rename = "unassigned")]
-	Unassigned {
-		/// The optional user who was assigned or unassigned from the issue.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		assignee:     Option<User>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues unlabeled event
-	#[serde(rename = "unlabeled")]
-	Unlabeled {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		/// The label that was removed from the issue.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		label:        Option<Label>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues unlocked event
-	#[serde(rename = "unlocked")]
-	Unlocked {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// issues unpinned event
-	#[serde(rename = "unpinned")]
-	Unpinned {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		issue:        Issue,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Assigned(IssuesAssigned),
+	Closed(IssuesClosed),
+	Deleted(IssuesDeleted),
+	Demilestoned(IssuesDemilestoned),
+	Edited(IssuesEdited),
+	Labeled(IssuesLabeled),
+	Locked(IssuesLocked),
+	Milestoned(IssuesMilestoned),
+	Opened(IssuesOpened),
+	Pinned(IssuesPinned),
+	Reopened(IssuesReopened),
+	Transferred(IssuesTransferred),
+	Unassigned(IssuesUnassigned),
+	Unlabeled(IssuesUnlabeled),
+	Unlocked(IssuesUnlocked),
+	Unpinned(IssuesUnpinned),
 }
 impl From<&IssuesEvent> for IssuesEvent {
 	fn from(value: &IssuesEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<IssuesAssigned> for IssuesEvent {
+	fn from(value: IssuesAssigned) -> Self {
+		Self::Assigned(value)
+	}
+}
+impl From<IssuesClosed> for IssuesEvent {
+	fn from(value: IssuesClosed) -> Self {
+		Self::Closed(value)
+	}
+}
+impl From<IssuesDeleted> for IssuesEvent {
+	fn from(value: IssuesDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<IssuesDemilestoned> for IssuesEvent {
+	fn from(value: IssuesDemilestoned) -> Self {
+		Self::Demilestoned(value)
+	}
+}
+impl From<IssuesEdited> for IssuesEvent {
+	fn from(value: IssuesEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<IssuesLabeled> for IssuesEvent {
+	fn from(value: IssuesLabeled) -> Self {
+		Self::Labeled(value)
+	}
+}
+impl From<IssuesLocked> for IssuesEvent {
+	fn from(value: IssuesLocked) -> Self {
+		Self::Locked(value)
+	}
+}
+impl From<IssuesMilestoned> for IssuesEvent {
+	fn from(value: IssuesMilestoned) -> Self {
+		Self::Milestoned(value)
+	}
+}
+impl From<IssuesOpened> for IssuesEvent {
+	fn from(value: IssuesOpened) -> Self {
+		Self::Opened(value)
+	}
+}
+impl From<IssuesPinned> for IssuesEvent {
+	fn from(value: IssuesPinned) -> Self {
+		Self::Pinned(value)
+	}
+}
+impl From<IssuesReopened> for IssuesEvent {
+	fn from(value: IssuesReopened) -> Self {
+		Self::Reopened(value)
+	}
+}
+impl From<IssuesTransferred> for IssuesEvent {
+	fn from(value: IssuesTransferred) -> Self {
+		Self::Transferred(value)
+	}
+}
+impl From<IssuesUnassigned> for IssuesEvent {
+	fn from(value: IssuesUnassigned) -> Self {
+		Self::Unassigned(value)
+	}
+}
+impl From<IssuesUnlabeled> for IssuesEvent {
+	fn from(value: IssuesUnlabeled) -> Self {
+		Self::Unlabeled(value)
+	}
+}
+impl From<IssuesUnlocked> for IssuesEvent {
+	fn from(value: IssuesUnlocked) -> Self {
+		Self::Unlocked(value)
+	}
+}
+impl From<IssuesUnpinned> for IssuesEvent {
+	fn from(value: IssuesUnpinned) -> Self {
+		Self::Unpinned(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -18064,50 +17622,30 @@ impl From<&LabelEditedChangesName> for LabelEditedChangesName {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum LabelEvent {
-	/// label created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The label that was added.
-		label:        Label,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// label deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The label that was removed.
-		label:        Label,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// label edited event
-	#[serde(rename = "edited")]
-	Edited {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<LabelEditedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The label that was edited.
-		label:        Label,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(LabelCreated),
+	Deleted(LabelDeleted),
+	Edited(LabelEdited),
 }
 impl From<&LabelEvent> for LabelEvent {
 	fn from(value: &LabelEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<LabelCreated> for LabelEvent {
+	fn from(value: LabelCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<LabelDeleted> for LabelEvent {
+	fn from(value: LabelDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<LabelEdited> for LabelEvent {
+	fn from(value: LabelEdited) -> Self {
+		Self::Edited(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -18349,57 +17887,42 @@ impl From<&MarketplacePurchaseChangedSender> for MarketplacePurchaseChangedSende
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum MarketplacePurchaseEvent {
-	/// marketplace_purchase cancelled event
-	#[serde(rename = "cancelled")]
-	Cancelled {
-		effective_date: chrono::DateTime<chrono::offset::Utc>,
-		marketplace_purchase: MarketplacePurchase,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		previous_marketplace_purchase: Option<MarketplacePurchase>,
-		sender: MarketplacePurchaseCancelledSender,
-	},
-	/// marketplace_purchase changed event
-	#[serde(rename = "changed")]
-	Changed {
-		effective_date: chrono::DateTime<chrono::offset::Utc>,
-		marketplace_purchase: MarketplacePurchase,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		previous_marketplace_purchase: Option<MarketplacePurchase>,
-		sender: MarketplacePurchaseChangedSender,
-	},
-	/// marketplace_purchase pending_change event
-	#[serde(rename = "pending_change")]
-	PendingChange {
-		effective_date: chrono::DateTime<chrono::offset::Utc>,
-		marketplace_purchase: MarketplacePurchase,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		previous_marketplace_purchase: Option<MarketplacePurchase>,
-		sender: MarketplacePurchasePendingChangeSender,
-	},
-	/// marketplace_purchase pending_change_cancelled event
-	#[serde(rename = "pending_change_cancelled")]
-	PendingChangeCancelled {
-		effective_date: chrono::DateTime<chrono::offset::Utc>,
-		marketplace_purchase: MarketplacePurchase,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		previous_marketplace_purchase: Option<MarketplacePurchase>,
-		sender: MarketplacePurchasePendingChangeCancelledSender,
-	},
-	/// marketplace_purchase purchased event
-	#[serde(rename = "purchased")]
-	Purchased {
-		effective_date: chrono::DateTime<chrono::offset::Utc>,
-		marketplace_purchase: MarketplacePurchase,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		previous_marketplace_purchase: Option<MarketplacePurchase>,
-		sender: MarketplacePurchasePurchasedSender,
-	},
+	Cancelled(MarketplacePurchaseCancelled),
+	Changed(MarketplacePurchaseChanged),
+	PendingChange(MarketplacePurchasePendingChange),
+	PendingChangeCancelled(MarketplacePurchasePendingChangeCancelled),
+	Purchased(MarketplacePurchasePurchased),
 }
 impl From<&MarketplacePurchaseEvent> for MarketplacePurchaseEvent {
 	fn from(value: &MarketplacePurchaseEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MarketplacePurchaseCancelled> for MarketplacePurchaseEvent {
+	fn from(value: MarketplacePurchaseCancelled) -> Self {
+		Self::Cancelled(value)
+	}
+}
+impl From<MarketplacePurchaseChanged> for MarketplacePurchaseEvent {
+	fn from(value: MarketplacePurchaseChanged) -> Self {
+		Self::Changed(value)
+	}
+}
+impl From<MarketplacePurchasePendingChange> for MarketplacePurchaseEvent {
+	fn from(value: MarketplacePurchasePendingChange) -> Self {
+		Self::PendingChange(value)
+	}
+}
+impl From<MarketplacePurchasePendingChangeCancelled> for MarketplacePurchaseEvent {
+	fn from(value: MarketplacePurchasePendingChangeCancelled) -> Self {
+		Self::PendingChangeCancelled(value)
+	}
+}
+impl From<MarketplacePurchasePurchased> for MarketplacePurchaseEvent {
+	fn from(value: MarketplacePurchasePurchased) -> Self {
+		Self::Purchased(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -18932,54 +18455,30 @@ impl From<&MemberEditedChangesOldPermission> for MemberEditedChangesOldPermissio
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum MemberEvent {
-	/// member added event
-	///
-	/// Activity related to repository collaborators. The type of activity is
-	/// specified in the action property.
-	#[serde(rename = "added")]
-	Added {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<MemberAddedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The user that was added.
-		member:       User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// member edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      MemberEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The user who's permissions are changed.
-		member:       User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// member removed event
-	#[serde(rename = "removed")]
-	Removed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The user that was removed.
-		member:       User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Added(MemberAdded),
+	Edited(MemberEdited),
+	Removed(MemberRemoved),
 }
 impl From<&MemberEvent> for MemberEvent {
 	fn from(value: &MemberEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MemberAdded> for MemberEvent {
+	fn from(value: MemberAdded) -> Self {
+		Self::Added(value)
+	}
+}
+impl From<MemberEdited> for MemberEvent {
+	fn from(value: MemberEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<MemberRemoved> for MemberEvent {
+	fn from(value: MemberRemoved) -> Self {
+		Self::Removed(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -19184,40 +18683,24 @@ impl std::convert::TryFrom<String> for MembershipAddedScope {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum MembershipEvent {
-	/// membership added event
-	#[serde(rename = "added")]
-	Added {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [user](https://docs.github.com/en/rest/reference/users) that was added or removed.
-		member:       User,
-		organization: Organization,
-		/// The scope of the membership. Currently, can only be `team`.
-		scope:        MembershipAddedScope,
-		sender:       User,
-		/// The [team](https://docs.github.com/en/rest/reference/teams) for the membership.
-		team:         Team,
-	},
-	/// membership removed event
-	#[serde(rename = "removed")]
-	Removed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		/// The [user](https://docs.github.com/en/rest/reference/users) that was added or removed.
-		member:       User,
-		organization: Organization,
-		/// The scope of the membership. Currently, can only be `team`.
-		scope:        MembershipRemovedScope,
-		sender:       User,
-		/// The [team](https://docs.github.com/en/rest/reference/teams) for the membership.
-		team:         MembershipRemovedTeam,
-	},
+	Added(MembershipAdded),
+	Removed(MembershipRemoved),
 }
 impl From<&MembershipEvent> for MembershipEvent {
 	fn from(value: &MembershipEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MembershipAdded> for MembershipEvent {
+	fn from(value: MembershipAdded) -> Self {
+		Self::Added(value)
+	}
+}
+impl From<MembershipRemoved> for MembershipEvent {
+	fn from(value: MembershipRemoved) -> Self {
+		Self::Removed(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -19492,23 +18975,27 @@ impl From<&MergeGroupChecksRequestedMergeGroupHeadCommitCommitter>
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum MergeGroupEvent {
-	/// merge group checks requested event
-	#[serde(rename = "checks_requested")]
-	ChecksRequested {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		merge_group:  MergeGroupChecksRequestedMergeGroup,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+pub struct MergeGroupEvent(pub MergeGroupChecksRequested);
+impl std::ops::Deref for MergeGroupEvent {
+	type Target = MergeGroupChecksRequested;
+
+	fn deref(&self) -> &MergeGroupChecksRequested {
+		&self.0
+	}
+}
+impl From<MergeGroupEvent> for MergeGroupChecksRequested {
+	fn from(value: MergeGroupEvent) -> Self {
+		value.0
+	}
 }
 impl From<&MergeGroupEvent> for MergeGroupEvent {
 	fn from(value: &MergeGroupEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MergeGroupChecksRequested> for MergeGroupEvent {
+	fn from(value: MergeGroupChecksRequested) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -19729,21 +19216,27 @@ impl std::convert::TryFrom<String> for MetaDeletedHookConfigInsecureSsl {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum MetaEvent {
-	/// meta deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		hook:       MetaDeletedHook,
-		/// The id of the modified webhook.
-		hook_id:    i64,
-		repository: Repository,
-		sender:     User,
-	},
+pub struct MetaEvent(pub MetaDeleted);
+impl std::ops::Deref for MetaEvent {
+	type Target = MetaDeleted;
+
+	fn deref(&self) -> &MetaDeleted {
+		&self.0
+	}
+}
+impl From<MetaEvent> for MetaDeleted {
+	fn from(value: MetaEvent) -> Self {
+		value.0
+	}
 }
 impl From<&MetaEvent> for MetaEvent {
 	fn from(value: &MetaEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MetaDeleted> for MetaEvent {
+	fn from(value: MetaDeleted) -> Self {
+		Self(value)
 	}
 }
 /// A collection of related issues and pull requests.
@@ -20086,68 +19579,42 @@ impl From<&MilestoneEditedChangesTitle> for MilestoneEditedChangesTitle {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum MilestoneEvent {
-	/// milestone closed event
-	#[serde(rename = "closed")]
-	Closed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// milestone created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// milestone deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// milestone edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      MilestoneEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// milestone opened event
-	#[serde(rename = "opened")]
-	Opened {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		milestone:    Milestone,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Closed(MilestoneClosed),
+	Created(MilestoneCreated),
+	Deleted(MilestoneDeleted),
+	Edited(MilestoneEdited),
+	Opened(MilestoneOpened),
 }
 impl From<&MilestoneEvent> for MilestoneEvent {
 	fn from(value: &MilestoneEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<MilestoneClosed> for MilestoneEvent {
+	fn from(value: MilestoneClosed) -> Self {
+		Self::Closed(value)
+	}
+}
+impl From<MilestoneCreated> for MilestoneEvent {
+	fn from(value: MilestoneCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<MilestoneDeleted> for MilestoneEvent {
+	fn from(value: MilestoneDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<MilestoneEdited> for MilestoneEvent {
+	fn from(value: MilestoneEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<MilestoneOpened> for MilestoneEvent {
+	fn from(value: MilestoneOpened) -> Self {
+		Self::Opened(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -20333,32 +19800,24 @@ impl std::convert::TryFrom<String> for OrgBlockBlockedAction {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum OrgBlockEvent {
-	/// org_block blocked event
-	#[serde(rename = "blocked")]
-	Blocked {
-		/// Information about the user that was blocked or unblocked.
-		blocked_user: User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		sender:       User,
-	},
-	/// org_block unblocked event
-	#[serde(rename = "unblocked")]
-	Unblocked {
-		/// Information about the user that was blocked or unblocked.
-		blocked_user: User,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		sender:       User,
-	},
+	Blocked(OrgBlockBlocked),
+	Unblocked(OrgBlockUnblocked),
 }
 impl From<&OrgBlockEvent> for OrgBlockEvent {
 	fn from(value: &OrgBlockEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<OrgBlockBlocked> for OrgBlockEvent {
+	fn from(value: OrgBlockBlocked) -> Self {
+		Self::Blocked(value)
+	}
+}
+impl From<OrgBlockUnblocked> for OrgBlockEvent {
+	fn from(value: OrgBlockUnblocked) -> Self {
+		Self::Unblocked(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -20513,59 +19972,42 @@ impl std::convert::TryFrom<String> for OrganizationDeletedAction {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum OrganizationEvent {
-	/// organization deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		membership:   Option<Membership>,
-		organization: Organization,
-		sender:       User,
-	},
-	/// organization member_added event
-	#[serde(rename = "member_added")]
-	MemberAdded {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		membership:   Membership,
-		organization: Organization,
-		sender:       User,
-	},
-	/// organization member_invited event
-	#[serde(rename = "member_invited")]
-	MemberInvited {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		invitation:   OrganizationMemberInvitedInvitation,
-		organization: Organization,
-		sender:       User,
-		user:         User,
-	},
-	/// organization member_removed event
-	#[serde(rename = "member_removed")]
-	MemberRemoved {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		membership:   Membership,
-		organization: Organization,
-		sender:       User,
-	},
-	/// organization renamed event
-	#[serde(rename = "renamed")]
-	Renamed {
-		changes:      OrganizationRenamedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		sender:       User,
-	},
+	Deleted(OrganizationDeleted),
+	MemberAdded(OrganizationMemberAdded),
+	MemberInvited(OrganizationMemberInvited),
+	MemberRemoved(OrganizationMemberRemoved),
+	Renamed(OrganizationRenamed),
 }
 impl From<&OrganizationEvent> for OrganizationEvent {
 	fn from(value: &OrganizationEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<OrganizationDeleted> for OrganizationEvent {
+	fn from(value: OrganizationDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<OrganizationMemberAdded> for OrganizationEvent {
+	fn from(value: OrganizationMemberAdded) -> Self {
+		Self::MemberAdded(value)
+	}
+}
+impl From<OrganizationMemberInvited> for OrganizationEvent {
+	fn from(value: OrganizationMemberInvited) -> Self {
+		Self::MemberInvited(value)
+	}
+}
+impl From<OrganizationMemberRemoved> for OrganizationEvent {
+	fn from(value: OrganizationMemberRemoved) -> Self {
+		Self::MemberRemoved(value)
+	}
+}
+impl From<OrganizationRenamed> for OrganizationEvent {
+	fn from(value: OrganizationRenamed) -> Self {
+		Self::Renamed(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -20863,30 +20305,24 @@ impl From<&OrganizationRenamedChangesLogin> for OrganizationRenamedChangesLogin 
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum PackageEvent {
-	/// package published event
-	#[serde(rename = "published")]
-	Published {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		package:      PackagePublishedPackage,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// package updated event
-	#[serde(rename = "updated")]
-	Updated {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		package:      PackageUpdatedPackage,
-		repository:   Repository,
-		sender:       User,
-	},
+	Published(PackagePublished),
+	Updated(PackageUpdated),
 }
 impl From<&PackageEvent> for PackageEvent {
 	fn from(value: &PackageEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<PackagePublished> for PackageEvent {
+	fn from(value: PackagePublished) -> Self {
+		Self::Published(value)
+	}
+}
+impl From<PackageUpdated> for PackageEvent {
+	fn from(value: PackageUpdated) -> Self {
+		Self::Updated(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -22450,76 +21886,42 @@ impl From<&ProjectCardEditedChangesNote> for ProjectCardEditedChangesNote {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum ProjectCardEvent {
-	/// project_card converted event
-	#[serde(rename = "converted")]
-	Converted {
-		changes:      ProjectCardConvertedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project_card: ProjectCard,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-	},
-	/// project_card created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project_card: ProjectCard,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-	},
-	/// project_card deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project_card: ProjectCard,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-	},
-	/// project_card edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      ProjectCardEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project_card: ProjectCard,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-	},
-	/// project_card moved event
-	#[serde(rename = "moved")]
-	Moved {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<ProjectCardMovedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project_card: ProjectCard,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-	},
+	Converted(ProjectCardConverted),
+	Created(ProjectCardCreated),
+	Deleted(ProjectCardDeleted),
+	Edited(ProjectCardEdited),
+	Moved(ProjectCardMoved),
 }
 impl From<&ProjectCardEvent> for ProjectCardEvent {
 	fn from(value: &ProjectCardEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<ProjectCardConverted> for ProjectCardEvent {
+	fn from(value: ProjectCardConverted) -> Self {
+		Self::Converted(value)
+	}
+}
+impl From<ProjectCardCreated> for ProjectCardEvent {
+	fn from(value: ProjectCardCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<ProjectCardDeleted> for ProjectCardEvent {
+	fn from(value: ProjectCardDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<ProjectCardEdited> for ProjectCardEvent {
+	fn from(value: ProjectCardEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<ProjectCardMoved> for ProjectCardEvent {
+	fn from(value: ProjectCardMoved) -> Self {
+		Self::Moved(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -22915,61 +22317,36 @@ impl From<&ProjectColumnEditedChangesName> for ProjectColumnEditedChangesName {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum ProjectColumnEvent {
-	/// project_column created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:   Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:   Option<Organization>,
-		project_column: ProjectColumn,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:     Option<Repository>,
-		sender:         User,
-	},
-	/// project_column deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:   Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:   Option<Organization>,
-		project_column: ProjectColumn,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:     Option<Repository>,
-		sender:         User,
-	},
-	/// project_column edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:        ProjectColumnEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:   Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:   Option<Organization>,
-		project_column: ProjectColumn,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:     Option<Repository>,
-		sender:         User,
-	},
-	/// project_column moved event
-	#[serde(rename = "moved")]
-	Moved {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:   Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:   Option<Organization>,
-		project_column: ProjectColumn,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:     Option<Repository>,
-		sender:         User,
-	},
+	Created(ProjectColumnCreated),
+	Deleted(ProjectColumnDeleted),
+	Edited(ProjectColumnEdited),
+	Moved(ProjectColumnMoved),
 }
 impl From<&ProjectColumnEvent> for ProjectColumnEvent {
 	fn from(value: &ProjectColumnEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<ProjectColumnCreated> for ProjectColumnEvent {
+	fn from(value: ProjectColumnCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<ProjectColumnDeleted> for ProjectColumnEvent {
+	fn from(value: ProjectColumnDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<ProjectColumnEdited> for ProjectColumnEvent {
+	fn from(value: ProjectColumnEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<ProjectColumnMoved> for ProjectColumnEvent {
+	fn from(value: ProjectColumnMoved) -> Self {
+		Self::Moved(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -23272,69 +22649,42 @@ impl From<&ProjectEditedChangesName> for ProjectEditedChangesName {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum ProjectEvent {
-	/// project closed event
-	#[serde(rename = "closed")]
-	Closed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project:      Project,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// project created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project:      Project,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// project deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project:      Project,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// project edited event
-	#[serde(rename = "edited")]
-	Edited {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		changes:      Option<ProjectEditedChanges>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project:      Project,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// project reopened event
-	#[serde(rename = "reopened")]
-	Reopened {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		project:      Project,
-		repository:   Repository,
-		sender:       User,
-	},
+	Closed(ProjectClosed),
+	Created(ProjectCreated),
+	Deleted(ProjectDeleted),
+	Edited(ProjectEdited),
+	Reopened(ProjectReopened),
 }
 impl From<&ProjectEvent> for ProjectEvent {
 	fn from(value: &ProjectEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<ProjectClosed> for ProjectEvent {
+	fn from(value: ProjectClosed) -> Self {
+		Self::Closed(value)
+	}
+}
+impl From<ProjectCreated> for ProjectEvent {
+	fn from(value: ProjectCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<ProjectDeleted> for ProjectEvent {
+	fn from(value: ProjectDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<ProjectEdited> for ProjectEvent {
+	fn from(value: ProjectEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<ProjectReopened> for ProjectEvent {
+	fn from(value: ProjectReopened) -> Self {
+		Self::Reopened(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -24080,87 +23430,54 @@ impl std::convert::TryFrom<String> for ProjectsV2ItemEditedChangesFieldValueFiel
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum ProjectsV2ItemEvent {
-	/// projects_v2_item archived event
-	#[serde(rename = "archived")]
-	Archived {
-		changes:          ProjectsV2ItemArchivedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item converted event
-	#[serde(rename = "converted")]
-	Converted {
-		changes:          ProjectsV2ItemConvertedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:          ProjectsV2ItemEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item reordered event
-	#[serde(rename = "reordered")]
-	Reordered {
-		changes:          ProjectsV2ItemReorderedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
-	/// projects_v2_item restored event
-	#[serde(rename = "restored")]
-	Restored {
-		changes:          ProjectsV2ItemRestoredChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation:     Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		projects_v2_item: ProjectsV2Item,
-		sender:           User,
-	},
+	Archived(ProjectsV2ItemArchived),
+	Converted(ProjectsV2ItemConverted),
+	Created(ProjectsV2ItemCreated),
+	Deleted(ProjectsV2ItemDeleted),
+	Edited(ProjectsV2ItemEdited),
+	Reordered(ProjectsV2ItemReordered),
+	Restored(ProjectsV2ItemRestored),
 }
 impl From<&ProjectsV2ItemEvent> for ProjectsV2ItemEvent {
 	fn from(value: &ProjectsV2ItemEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<ProjectsV2ItemArchived> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemArchived) -> Self {
+		Self::Archived(value)
+	}
+}
+impl From<ProjectsV2ItemConverted> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemConverted) -> Self {
+		Self::Converted(value)
+	}
+}
+impl From<ProjectsV2ItemCreated> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<ProjectsV2ItemDeleted> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<ProjectsV2ItemEdited> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<ProjectsV2ItemReordered> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemReordered) -> Self {
+		Self::Reordered(value)
+	}
+}
+impl From<ProjectsV2ItemRestored> for ProjectsV2ItemEvent {
+	fn from(value: ProjectsV2ItemRestored) -> Self {
+		Self::Restored(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -26806,49 +26123,30 @@ impl std::convert::TryFrom<String> for PullRequestReviewCommentEditedPullRequest
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum PullRequestReviewCommentEvent {
-	/// pull_request_review_comment created event
-	#[serde(rename = "created")]
-	Created {
-		comment:      PullRequestReviewComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: PullRequestReviewCommentCreatedPullRequest,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// pull_request_review_comment deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		comment:      PullRequestReviewComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: PullRequestReviewCommentDeletedPullRequest,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// pull_request_review_comment edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      PullRequestReviewCommentEditedChanges,
-		comment:      PullRequestReviewComment,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: PullRequestReviewCommentEditedPullRequest,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(PullRequestReviewCommentCreated),
+	Deleted(PullRequestReviewCommentDeleted),
+	Edited(PullRequestReviewCommentEdited),
 }
 impl From<&PullRequestReviewCommentEvent> for PullRequestReviewCommentEvent {
 	fn from(value: &PullRequestReviewCommentEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<PullRequestReviewCommentCreated> for PullRequestReviewCommentEvent {
+	fn from(value: PullRequestReviewCommentCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<PullRequestReviewCommentDeleted> for PullRequestReviewCommentEvent {
+	fn from(value: PullRequestReviewCommentDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<PullRequestReviewCommentEdited> for PullRequestReviewCommentEvent {
+	fn from(value: PullRequestReviewCommentEdited) -> Self {
+		Self::Edited(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -27179,49 +26477,30 @@ impl From<&PullRequestReviewEditedChangesBody> for PullRequestReviewEditedChange
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum PullRequestReviewEvent {
-	/// pull_request_review dismissed event
-	#[serde(rename = "dismissed")]
-	Dismissed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: SimplePullRequest,
-		repository:   Repository,
-		review:       PullRequestReview,
-		sender:       User,
-	},
-	/// pull_request_review edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      PullRequestReviewEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: SimplePullRequest,
-		repository:   Repository,
-		review:       PullRequestReview,
-		sender:       User,
-	},
-	/// pull_request_review submitted event
-	#[serde(rename = "submitted")]
-	Submitted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: SimplePullRequest,
-		repository:   Repository,
-		review:       PullRequestReview,
-		sender:       User,
-	},
+	Dismissed(PullRequestReviewDismissed),
+	Edited(PullRequestReviewEdited),
+	Submitted(PullRequestReviewSubmitted),
 }
 impl From<&PullRequestReviewEvent> for PullRequestReviewEvent {
 	fn from(value: &PullRequestReviewEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<PullRequestReviewDismissed> for PullRequestReviewEvent {
+	fn from(value: PullRequestReviewDismissed) -> Self {
+		Self::Dismissed(value)
+	}
+}
+impl From<PullRequestReviewEdited> for PullRequestReviewEvent {
+	fn from(value: PullRequestReviewEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<PullRequestReviewSubmitted> for PullRequestReviewEvent {
+	fn from(value: PullRequestReviewSubmitted) -> Self {
+		Self::Submitted(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -27628,36 +26907,24 @@ impl std::convert::TryFrom<String> for PullRequestReviewSubmittedAction {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum PullRequestReviewThreadEvent {
-	/// pull_request_review_thread resolved event
-	#[serde(rename = "resolved")]
-	Resolved {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: SimplePullRequest,
-		repository:   Repository,
-		sender:       User,
-		thread:       PullRequestReviewThreadResolvedThread,
-	},
-	/// pull_request_review_thread unresolved event
-	#[serde(rename = "unresolved")]
-	Unresolved {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		pull_request: SimplePullRequest,
-		repository:   Repository,
-		sender:       User,
-		thread:       PullRequestReviewThreadUnresolvedThread,
-	},
+	Resolved(PullRequestReviewThreadResolved),
+	Unresolved(PullRequestReviewThreadUnresolved),
 }
 impl From<&PullRequestReviewThreadEvent> for PullRequestReviewThreadEvent {
 	fn from(value: &PullRequestReviewThreadEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<PullRequestReviewThreadResolved> for PullRequestReviewThreadEvent {
+	fn from(value: PullRequestReviewThreadResolved) -> Self {
+		Self::Resolved(value)
+	}
+}
+impl From<PullRequestReviewThreadUnresolved> for PullRequestReviewThreadEvent {
+	fn from(value: PullRequestReviewThreadUnresolved) -> Self {
+		Self::Unresolved(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -28219,30 +27486,24 @@ impl From<&ReferencedWorkflow> for ReferencedWorkflow {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum RegistryPackageEvent {
-	/// registry_package published event
-	#[serde(rename = "published")]
-	Published {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		registry_package: RegistryPackagePublishedRegistryPackage,
-		repository:       Repository,
-		sender:           User,
-	},
-	/// registry_package updated event
-	#[serde(rename = "updated")]
-	Updated {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization:     Option<Organization>,
-		registry_package: RegistryPackageUpdatedRegistryPackage,
-		repository:       Repository,
-		sender:           User,
-	},
+	Published(RegistryPackagePublished),
+	Updated(RegistryPackageUpdated),
 }
 impl From<&RegistryPackageEvent> for RegistryPackageEvent {
 	fn from(value: &RegistryPackageEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<RegistryPackagePublished> for RegistryPackageEvent {
+	fn from(value: RegistryPackagePublished) -> Self {
+		Self::Published(value)
+	}
+}
+impl From<RegistryPackageUpdated> for RegistryPackageEvent {
+	fn from(value: RegistryPackageUpdated) -> Self {
+		Self::Updated(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -29607,90 +28868,54 @@ impl From<&ReleaseEditedChangesName> for ReleaseEditedChangesName {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum ReleaseEvent {
-	/// release created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      ReleaseEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release prereleased event
-	#[serde(rename = "prereleased")]
-	Prereleased {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release published event
-	#[serde(rename = "published")]
-	Published {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release released event
-	#[serde(rename = "released")]
-	Released {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// release unpublished event
-	#[serde(rename = "unpublished")]
-	Unpublished {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		release:      Release,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(ReleaseCreated),
+	Deleted(ReleaseDeleted),
+	Edited(ReleaseEdited),
+	Prereleased(ReleasePrereleased),
+	Published(ReleasePublished),
+	Released(ReleaseReleased),
+	Unpublished(ReleaseUnpublished),
 }
 impl From<&ReleaseEvent> for ReleaseEvent {
 	fn from(value: &ReleaseEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<ReleaseCreated> for ReleaseEvent {
+	fn from(value: ReleaseCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<ReleaseDeleted> for ReleaseEvent {
+	fn from(value: ReleaseDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<ReleaseEdited> for ReleaseEvent {
+	fn from(value: ReleaseEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<ReleasePrereleased> for ReleaseEvent {
+	fn from(value: ReleasePrereleased) -> Self {
+		Self::Prereleased(value)
+	}
+}
+impl From<ReleasePublished> for ReleaseEvent {
+	fn from(value: ReleasePublished) -> Self {
+		Self::Published(value)
+	}
+}
+impl From<ReleaseReleased> for ReleaseEvent {
+	fn from(value: ReleaseReleased) -> Self {
+		Self::Released(value)
+	}
+}
+impl From<ReleaseUnpublished> for ReleaseEvent {
+	fn from(value: ReleaseUnpublished) -> Self {
+		Self::Unpublished(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -30552,105 +29777,66 @@ impl From<&RepositoryEditedChangesHomepage> for RepositoryEditedChangesHomepage 
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum RepositoryEvent {
-	/// repository archived event
-	#[serde(rename = "archived")]
-	Archived {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      RepositoryEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository privatized event
-	#[serde(rename = "privatized")]
-	Privatized {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository publicized event
-	#[serde(rename = "publicized")]
-	Publicized {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository renamed event
-	#[serde(rename = "renamed")]
-	Renamed {
-		changes:      RepositoryRenamedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository transferred event
-	#[serde(rename = "transferred")]
-	Transferred {
-		changes:      RepositoryTransferredChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// repository unarchived event
-	#[serde(rename = "unarchived")]
-	Unarchived {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Archived(RepositoryArchived),
+	Created(RepositoryCreated),
+	Deleted(RepositoryDeleted),
+	Edited(RepositoryEdited),
+	Privatized(RepositoryPrivatized),
+	Publicized(RepositoryPublicized),
+	Renamed(RepositoryRenamed),
+	Transferred(RepositoryTransferred),
+	Unarchived(RepositoryUnarchived),
 }
 impl From<&RepositoryEvent> for RepositoryEvent {
 	fn from(value: &RepositoryEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<RepositoryArchived> for RepositoryEvent {
+	fn from(value: RepositoryArchived) -> Self {
+		Self::Archived(value)
+	}
+}
+impl From<RepositoryCreated> for RepositoryEvent {
+	fn from(value: RepositoryCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<RepositoryDeleted> for RepositoryEvent {
+	fn from(value: RepositoryDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<RepositoryEdited> for RepositoryEvent {
+	fn from(value: RepositoryEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<RepositoryPrivatized> for RepositoryEvent {
+	fn from(value: RepositoryPrivatized) -> Self {
+		Self::Privatized(value)
+	}
+}
+impl From<RepositoryPublicized> for RepositoryEvent {
+	fn from(value: RepositoryPublicized) -> Self {
+		Self::Publicized(value)
+	}
+}
+impl From<RepositoryRenamed> for RepositoryEvent {
+	fn from(value: RepositoryRenamed) -> Self {
+		Self::Renamed(value)
+	}
+}
+impl From<RepositoryTransferred> for RepositoryEvent {
+	fn from(value: RepositoryTransferred) -> Self {
+		Self::Transferred(value)
+	}
+}
+impl From<RepositoryUnarchived> for RepositoryEvent {
+	fn from(value: RepositoryUnarchived) -> Self {
+		Self::Unarchived(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -31540,48 +30726,36 @@ impl std::convert::TryFrom<String> for RepositoryVulnerabilityAlertDismissAction
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum RepositoryVulnerabilityAlertEvent {
-	/// repository_vulnerability_alert create event
-	#[serde(rename = "create")]
-	Create {
-		alert:        RepositoryVulnerabilityAlertAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// repository_vulnerability_alert dismiss event
-	#[serde(rename = "dismiss")]
-	Dismiss {
-		alert:        RepositoryVulnerabilityAlertAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// repository_vulnerability_alert reopen event
-	#[serde(rename = "reopen")]
-	Reopen {
-		alert:        RepositoryVulnerabilityAlertAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
-	/// repository_vulnerability_alert resolve event
-	#[serde(rename = "resolve")]
-	Resolve {
-		alert:        RepositoryVulnerabilityAlertAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       GithubOrg,
-	},
+	Create(RepositoryVulnerabilityAlertCreate),
+	Dismiss(RepositoryVulnerabilityAlertDismiss),
+	Reopen(RepositoryVulnerabilityAlertReopen),
+	Resolve(RepositoryVulnerabilityAlertResolve),
 }
 impl From<&RepositoryVulnerabilityAlertEvent> for RepositoryVulnerabilityAlertEvent {
 	fn from(value: &RepositoryVulnerabilityAlertEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<RepositoryVulnerabilityAlertCreate> for RepositoryVulnerabilityAlertEvent {
+	fn from(value: RepositoryVulnerabilityAlertCreate) -> Self {
+		Self::Create(value)
+	}
+}
+impl From<RepositoryVulnerabilityAlertDismiss> for RepositoryVulnerabilityAlertEvent {
+	fn from(value: RepositoryVulnerabilityAlertDismiss) -> Self {
+		Self::Dismiss(value)
+	}
+}
+impl From<RepositoryVulnerabilityAlertReopen> for RepositoryVulnerabilityAlertEvent {
+	fn from(value: RepositoryVulnerabilityAlertReopen) -> Self {
+		Self::Reopen(value)
+	}
+}
+impl From<RepositoryVulnerabilityAlertResolve> for RepositoryVulnerabilityAlertEvent {
+	fn from(value: RepositoryVulnerabilityAlertResolve) -> Self {
+		Self::Resolve(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -31792,44 +30966,30 @@ impl From<&SecretScanningAlertCreatedAlert> for SecretScanningAlertCreatedAlert 
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum SecretScanningAlertEvent {
-	/// secret_scanning_alert created event
-	#[serde(rename = "created")]
-	Created {
-		alert:        SecretScanningAlertCreatedAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-	},
-	/// secret_scanning_alert reopened event
-	#[serde(rename = "reopened")]
-	Reopened {
-		alert:        SecretScanningAlertReopenedAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
-	/// secret_scanning_alert resolved event
-	#[serde(rename = "resolved")]
-	Resolved {
-		alert:        SecretScanningAlertResolvedAlert,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+	Created(SecretScanningAlertCreated),
+	Reopened(SecretScanningAlertReopened),
+	Resolved(SecretScanningAlertResolved),
 }
 impl From<&SecretScanningAlertEvent> for SecretScanningAlertEvent {
 	fn from(value: &SecretScanningAlertEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<SecretScanningAlertCreated> for SecretScanningAlertEvent {
+	fn from(value: SecretScanningAlertCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<SecretScanningAlertReopened> for SecretScanningAlertEvent {
+	fn from(value: SecretScanningAlertReopened) -> Self {
+		Self::Reopened(value)
+	}
+}
+impl From<SecretScanningAlertResolved> for SecretScanningAlertEvent {
+	fn from(value: SecretScanningAlertResolved) -> Self {
+		Self::Resolved(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -32083,43 +31243,35 @@ impl From<&SecurityAdvisoryCwes> for SecurityAdvisoryCwes {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", content = "security_advisory")]
+#[serde(untagged)]
 pub enum SecurityAdvisoryEvent {
-	/// security_advisory performed event
-	#[serde(rename = "performed")]
-	Performed(SecurityAdvisoryPerformedSecurityAdvisory),
-	/// security_advisory published event
-	#[serde(rename = "published")]
-	Published(SecurityAdvisoryPublishedSecurityAdvisory),
-	/// security_advisory updated event
-	#[serde(rename = "updated")]
-	Updated(SecurityAdvisoryUpdatedSecurityAdvisory),
-	/// security_advisory withdrawn event
-	#[serde(rename = "withdrawn")]
-	Withdrawn(SecurityAdvisoryWithdrawnSecurityAdvisory),
+	Performed(SecurityAdvisoryPerformed),
+	Published(SecurityAdvisoryPublished),
+	Updated(SecurityAdvisoryUpdated),
+	Withdrawn(SecurityAdvisoryWithdrawn),
 }
 impl From<&SecurityAdvisoryEvent> for SecurityAdvisoryEvent {
 	fn from(value: &SecurityAdvisoryEvent) -> Self {
 		value.clone()
 	}
 }
-impl From<SecurityAdvisoryPerformedSecurityAdvisory> for SecurityAdvisoryEvent {
-	fn from(value: SecurityAdvisoryPerformedSecurityAdvisory) -> Self {
+impl From<SecurityAdvisoryPerformed> for SecurityAdvisoryEvent {
+	fn from(value: SecurityAdvisoryPerformed) -> Self {
 		Self::Performed(value)
 	}
 }
-impl From<SecurityAdvisoryPublishedSecurityAdvisory> for SecurityAdvisoryEvent {
-	fn from(value: SecurityAdvisoryPublishedSecurityAdvisory) -> Self {
+impl From<SecurityAdvisoryPublished> for SecurityAdvisoryEvent {
+	fn from(value: SecurityAdvisoryPublished) -> Self {
 		Self::Published(value)
 	}
 }
-impl From<SecurityAdvisoryUpdatedSecurityAdvisory> for SecurityAdvisoryEvent {
-	fn from(value: SecurityAdvisoryUpdatedSecurityAdvisory) -> Self {
+impl From<SecurityAdvisoryUpdated> for SecurityAdvisoryEvent {
+	fn from(value: SecurityAdvisoryUpdated) -> Self {
 		Self::Updated(value)
 	}
 }
-impl From<SecurityAdvisoryWithdrawnSecurityAdvisory> for SecurityAdvisoryEvent {
-	fn from(value: SecurityAdvisoryWithdrawnSecurityAdvisory) -> Self {
+impl From<SecurityAdvisoryWithdrawn> for SecurityAdvisoryEvent {
+	fn from(value: SecurityAdvisoryWithdrawn) -> Self {
 		Self::Withdrawn(value)
 	}
 }
@@ -33318,61 +32470,48 @@ impl From<&SponsorshipEditedSponsorship> for SponsorshipEditedSponsorship {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum SponsorshipEvent {
-	/// sponsorship cancelled event
-	#[serde(rename = "cancelled")]
-	Cancelled {
-		sender:      User,
-		sponsorship: SponsorshipCancelledSponsorship,
-	},
-	/// sponsorship created event
-	#[serde(rename = "created")]
-	Created {
-		sender:      User,
-		sponsorship: SponsorshipCreatedSponsorship,
-	},
-	/// sponsorship edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:     SponsorshipEditedChanges,
-		sender:      User,
-		sponsorship: SponsorshipEditedSponsorship,
-	},
-	/// sponsorship pending_cancellation event
-	#[serde(rename = "pending_cancellation")]
-	PendingCancellation {
-		/// The `pending_cancellation` and `pending_tier_change` event types
-		/// will include the date the cancellation or tier change will take
-		/// effect.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		effective_date: Option<String>,
-		sender:         User,
-		sponsorship:    SponsorshipPendingCancellationSponsorship,
-	},
-	/// sponsorship pending_tier_change event
-	#[serde(rename = "pending_tier_change")]
-	PendingTierChange {
-		changes:        SponsorshipPendingTierChangeChanges,
-		/// The `pending_cancellation` and `pending_tier_change` event types
-		/// will include the date the cancellation or tier change will take
-		/// effect.
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		effective_date: Option<String>,
-		sender:         User,
-		sponsorship:    SponsorshipPendingTierChangeSponsorship,
-	},
-	/// sponsorship tier_changed event
-	#[serde(rename = "tier_changed")]
-	TierChanged {
-		changes:     SponsorshipTierChangedChanges,
-		sender:      User,
-		sponsorship: SponsorshipTierChangedSponsorship,
-	},
+	Cancelled(SponsorshipCancelled),
+	Created(SponsorshipCreated),
+	Edited(SponsorshipEdited),
+	PendingCancellation(SponsorshipPendingCancellation),
+	PendingTierChange(SponsorshipPendingTierChange),
+	TierChanged(SponsorshipTierChanged),
 }
 impl From<&SponsorshipEvent> for SponsorshipEvent {
 	fn from(value: &SponsorshipEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<SponsorshipCancelled> for SponsorshipEvent {
+	fn from(value: SponsorshipCancelled) -> Self {
+		Self::Cancelled(value)
+	}
+}
+impl From<SponsorshipCreated> for SponsorshipEvent {
+	fn from(value: SponsorshipCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<SponsorshipEdited> for SponsorshipEvent {
+	fn from(value: SponsorshipEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<SponsorshipPendingCancellation> for SponsorshipEvent {
+	fn from(value: SponsorshipPendingCancellation) -> Self {
+		Self::PendingCancellation(value)
+	}
+}
+impl From<SponsorshipPendingTierChange> for SponsorshipEvent {
+	fn from(value: SponsorshipPendingTierChange) -> Self {
+		Self::PendingTierChange(value)
+	}
+}
+impl From<SponsorshipTierChanged> for SponsorshipEvent {
+	fn from(value: SponsorshipTierChanged) -> Self {
+		Self::TierChanged(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -33807,40 +32946,24 @@ impl std::convert::TryFrom<String> for StarDeletedAction {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum StarEvent {
-	/// star created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		/// The time the star was created. This is a timestamp in ISO 8601
-		/// format: `YYYY-MM-DDTHH:MM:SSZ`. Will be `null` for the `deleted`
-		/// action.
-		starred_at:   chrono::DateTime<chrono::offset::Utc>,
-	},
-	/// star deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		/// The time the star was created. This is a timestamp in ISO 8601
-		/// format: `YYYY-MM-DDTHH:MM:SSZ`. Will be `null` for the `deleted`
-		/// action.
-		starred_at:   (),
-	},
+	Created(StarCreated),
+	Deleted(StarDeleted),
 }
 impl From<&StarEvent> for StarEvent {
 	fn from(value: &StarEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<StarCreated> for StarEvent {
+	fn from(value: StarCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<StarDeleted> for StarEvent {
+	fn from(value: StarDeleted) -> Self {
+		Self::Deleted(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -34531,68 +33654,42 @@ impl From<&TeamEditedChangesRepositoryPermissionsFrom>
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum TeamEvent {
-	/// team added_to_repository event
-	#[serde(rename = "added_to_repository")]
-	AddedToRepository {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-		team:         Team,
-	},
-	/// team created event
-	#[serde(rename = "created")]
-	Created {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-		team:         Team,
-	},
-	/// team deleted event
-	#[serde(rename = "deleted")]
-	Deleted {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-		team:         Team,
-	},
-	/// team edited event
-	#[serde(rename = "edited")]
-	Edited {
-		changes:      TeamEditedChanges,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-		team:         Team,
-	},
-	/// team removed_from_repository event
-	#[serde(rename = "removed_from_repository")]
-	RemovedFromRepository {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		organization: Organization,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		repository:   Option<Repository>,
-		sender:       User,
-		team:         Team,
-	},
+	AddedToRepository(TeamAddedToRepository),
+	Created(TeamCreated),
+	Deleted(TeamDeleted),
+	Edited(TeamEdited),
+	RemovedFromRepository(TeamRemovedFromRepository),
 }
 impl From<&TeamEvent> for TeamEvent {
 	fn from(value: &TeamEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<TeamAddedToRepository> for TeamEvent {
+	fn from(value: TeamAddedToRepository) -> Self {
+		Self::AddedToRepository(value)
+	}
+}
+impl From<TeamCreated> for TeamEvent {
+	fn from(value: TeamCreated) -> Self {
+		Self::Created(value)
+	}
+}
+impl From<TeamDeleted> for TeamEvent {
+	fn from(value: TeamDeleted) -> Self {
+		Self::Deleted(value)
+	}
+}
+impl From<TeamEdited> for TeamEvent {
+	fn from(value: TeamEdited) -> Self {
+		Self::Edited(value)
+	}
+}
+impl From<TeamRemovedFromRepository> for TeamEvent {
+	fn from(value: TeamRemovedFromRepository) -> Self {
+		Self::RemovedFromRepository(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -34883,22 +33980,27 @@ impl std::convert::TryFrom<String> for UserType {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
-pub enum WatchEvent {
-	/// watch started event
-	#[serde(rename = "started")]
-	Started {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-	},
+pub struct WatchEvent(pub WatchStarted);
+impl std::ops::Deref for WatchEvent {
+	type Target = WatchStarted;
+
+	fn deref(&self) -> &WatchStarted {
+		&self.0
+	}
+}
+impl From<WatchEvent> for WatchStarted {
+	fn from(value: WatchEvent) -> Self {
+		value.0
+	}
 }
 impl From<&WatchEvent> for WatchEvent {
 	fn from(value: &WatchEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<WatchStarted> for WatchEvent {
+	fn from(value: WatchStarted) -> Self {
+		Self(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -35815,45 +34917,30 @@ impl std::convert::TryFrom<String> for WorkflowJobConclusion {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum WorkflowJobEvent {
-	/// workflow_job completed event
-	#[serde(rename = "completed")]
-	Completed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow_job: WorkflowJob,
-	},
-	/// workflow_job in_progress event
-	#[serde(rename = "in_progress")]
-	InProgress {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow_job: WorkflowJob,
-	},
-	/// workflow_job queued event
-	#[serde(rename = "queued")]
-	Queued {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow_job: WorkflowJob,
-	},
+	Completed(WorkflowJobCompleted),
+	InProgress(WorkflowJobInProgress),
+	Queued(WorkflowJobQueued),
 }
 impl From<&WorkflowJobEvent> for WorkflowJobEvent {
 	fn from(value: &WorkflowJobEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<WorkflowJobCompleted> for WorkflowJobEvent {
+	fn from(value: WorkflowJobCompleted) -> Self {
+		Self::Completed(value)
+	}
+}
+impl From<WorkflowJobInProgress> for WorkflowJobEvent {
+	fn from(value: WorkflowJobInProgress) -> Self {
+		Self::InProgress(value)
+	}
+}
+impl From<WorkflowJobQueued> for WorkflowJobEvent {
+	fn from(value: WorkflowJobQueued) -> Self {
+		Self::Queued(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -36253,48 +35340,30 @@ impl std::convert::TryFrom<String> for WorkflowRunConclusion {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "action", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum WorkflowRunEvent {
-	/// workflow_run completed event
-	#[serde(rename = "completed")]
-	Completed {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow:     Workflow,
-		workflow_run: WorkflowRun,
-	},
-	/// workflow_run in_progress event
-	#[serde(rename = "in_progress")]
-	InProgress {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow:     Workflow,
-		workflow_run: WorkflowRun,
-	},
-	/// workflow_run requested event
-	#[serde(rename = "requested")]
-	Requested {
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		installation: Option<InstallationLite>,
-		#[serde(default, skip_serializing_if = "Option::is_none")]
-		organization: Option<Organization>,
-		repository:   Repository,
-		sender:       User,
-		workflow:     Workflow,
-		workflow_run: WorkflowRun,
-	},
+	Completed(WorkflowRunCompleted),
+	InProgress(WorkflowRunInProgress),
+	Requested(WorkflowRunRequested),
 }
 impl From<&WorkflowRunEvent> for WorkflowRunEvent {
 	fn from(value: &WorkflowRunEvent) -> Self {
 		value.clone()
+	}
+}
+impl From<WorkflowRunCompleted> for WorkflowRunEvent {
+	fn from(value: WorkflowRunCompleted) -> Self {
+		Self::Completed(value)
+	}
+}
+impl From<WorkflowRunInProgress> for WorkflowRunEvent {
+	fn from(value: WorkflowRunInProgress) -> Self {
+		Self::InProgress(value)
+	}
+}
+impl From<WorkflowRunRequested> for WorkflowRunEvent {
+	fn from(value: WorkflowRunRequested) -> Self {
+		Self::Requested(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
@@ -36534,30 +35603,24 @@ impl std::convert::TryFrom<String> for WorkflowRunStatus {
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
-#[serde(tag = "status", deny_unknown_fields)]
+#[serde(untagged)]
 pub enum WorkflowStep {
-	/// Workflow Step (In Progress)
-	#[serde(rename = "in_progress")]
-	InProgress {
-		completed_at: (),
-		conclusion:   (),
-		name:         String,
-		number:       i64,
-		started_at:   chrono::DateTime<chrono::offset::Utc>,
-	},
-	/// Workflow Step (Completed)
-	#[serde(rename = "completed")]
-	Completed {
-		completed_at: chrono::DateTime<chrono::offset::Utc>,
-		conclusion:   WorkflowStepCompletedConclusion,
-		name:         String,
-		number:       i64,
-		started_at:   chrono::DateTime<chrono::offset::Utc>,
-	},
+	InProgress(WorkflowStepInProgress),
+	Completed(WorkflowStepCompleted),
 }
 impl From<&WorkflowStep> for WorkflowStep {
 	fn from(value: &WorkflowStep) -> Self {
 		value.clone()
+	}
+}
+impl From<WorkflowStepInProgress> for WorkflowStep {
+	fn from(value: WorkflowStepInProgress) -> Self {
+		Self::InProgress(value)
+	}
+}
+impl From<WorkflowStepCompleted> for WorkflowStep {
+	fn from(value: WorkflowStepCompleted) -> Self {
+		Self::Completed(value)
 	}
 }
 #[derive(Clone, Debug, Deserialize, Serialize)]
